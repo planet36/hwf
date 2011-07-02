@@ -1,45 +1,119 @@
 #!/usr/bin/python3.2
 
-# hanging with friends
+"""
+Copyright (C) 2011 Steve Ward
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 import collections
-
+import getopt
+#import os
+#import re
+#import signal
 import sys
-
 
 
 program_name = sys.argv[0]
 
 
+# default values
 
-# Remove the least common elements from the Counter object.
-def remove_least_common(c):
+default_verbose = False
 
-	result = c.copy()
+default_dictionary = '~/wwf.txt'
 
-	if len(c) == 0:
 
-		return result
+# mutable values
 
-	lowest_count = c.most_common()[-1][1]
+verbose = default_verbose
 
-	for (k, v) in c.items():
-		#for key in c.keys():
+dictionary = default_dictionary
 
-		#val = c[key]
-		#print("k,v : {},{}".format(k, v))
 
-		if v == lowest_count:
-			#if v > lowest_count:
 
-			#result.append(k)
-			#result[k] = v
+##### usage: ./hwf-create.py [--dictionary=FILE] ndyvefambuaw
 
-			#del c[k]
-			del result[k]
-			#del c[key]
 
-	return result
+
+
+
+
+
+
+
+
+
+def print_version():
+	"""Print the version information and exit."""
+
+	print(program_name + " 2011-06-28")
+
+	print("Written by Steve Ward")
+
+	exit(0)
+
+
+def print_verbose(s):
+	"""Print the message if verbose mode is on."""
+
+	if verbose: print("# {}".format(s))
+
+
+def print_warning(s):
+	"""Print the warning message and continue."""
+
+	print("Warning: {}".format(s), file=sys.stderr)
+
+	#cleanup()
+
+
+def print_error(s):
+	"""Print the error message and exit."""
+
+	print("Error: {}".format(s), file=sys.stderr)
+
+	print("Try '{} --help' for more information.".format(program_name))
+
+	#cleanup()
+
+	exit(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -47,150 +121,60 @@ def remove_least_common(c):
 # Get the least common elements from the Counter object.
 def get_least_common(c):
 
-	result = []
-
-	if len(c) == 0:
-
-		return result
-
 	lowest_count = c.most_common()[-1][1]
 
-	for (k, v) in c.items():
+	return [key for key in c if c[key] == lowest_count]
 
-		#print("k,v : {},{}".format(k, v))
 
-		if v == lowest_count:
+# Remove the least common elements from the Counter object.
+def remove_least_common(c):
 
-			result.append(k)
-			#result[k] = v
+	for key in get_least_common(c):
 
-	return result
+		del c[key]
 
 
 
 
+##### parse options
 
+for arg in sys.argv[1:]:
 
+	#print("arg={}".format(arg))
 
-if len(sys.argv) < 2:
+	if len(arg) == 0:
 
-	exit("must give a string")
+		continue
 
+	c = collections.Counter(list(arg))
 
-s = sys.argv[1].strip()
+	commands = []
 
+	commands.append("grep --perl-regexp '^[" + ''.join(c.keys()) + "]{4,8}$' " + dictionary)
 
+	while len(c) > 0:
 
-if len(s) == 0:
+		#print("c={}".format(c))
 
-	exit('must give a non-empty string')
+		#print("len(c)={}".format(len(c)))
 
+		#print("c.keys={}".format(''.join(c.keys())))
 
+		lowest_count = c.most_common()[-1][1]
 
-c0 = collections.Counter(list(s))
+		#print("lowest_count={}".format(lowest_count))
 
-##### read input
+		least_common = ''.join(get_least_common(c))
 
-#chars = str(input()).strip()
-#s = input().strip()
+		#print("least_common={}".format(least_common))
 
-print("s={}".format(s))
+		##### looks interesting: c - collections.Counter(c.keys())
 
+		commands.append("grep --perl-regexp --invert-match '([" + least_common + "])" + (r".*\1" * lowest_count) + "'")
 
-print("c0.keys={}".format(''.join(c0.keys())))
+		remove_least_common(c)
 
+		#print("\n\n")
 
 
-
-commands = []
-
-commands.append(r"grep --perl-regexp '^[" + ''.join(c0.keys()) + r"]{4,8}$' wwf.txt")
-
-
-
-
-
-
-
-
-
-
-#i2 = list(s)
-
-#i2.sort()
-
-#print("i2={}".format(''.join(i2)))
-
-
-print("\n\n")
-
-
-
-lowest_count = 0
-
-
-
-
-while len(c0) > 0:
-	print("c0={}".format(c0))
-
-	print("len(c0)={}".format(len(c0)))
-
-	print("c0.keys={}".format(''.join(c0.keys())))
-
-	lowest_count = c0.most_common()[-1][1]
-
-	print("lowest_count={}".format(lowest_count))
-
-	least_common = ''.join(get_least_common(c0))
-
-	print("least_common={}".format(least_common))
-
-
-	##### looks interesting: c0 - collections.Counter(c0.keys())
-
-	commands.append(r"grep --perl-regexp -v '([" + least_common + r"])" + (r".*\1" * lowest_count) + "'")
-
-	c0 = remove_least_common(c0)
-
-	print("\n\n")
-
-
-
-print("c0={}".format(c0))
-
-print("lowest_count={}".format(lowest_count))
-
-print("\n\n")
-
-
-
-
-print(' | '.join(commands))
-
-
-
-
-"""
-
-print("len(c1)={}".format(len(c1)))
-
-print("c1.keys={}".format(''.join(c1.keys())))
-
-lowest_count = c1.most_common()[-1][1]
-
-print("lowest_count={}".format(lowest_count))
-
-least_common = get_least_common(c1)
-
-print("least_common={}".format(least_common))
-
-c2 = c1.copy()
-
-remove_least_common(c2)
-
-print("c2={}".format(c2))
-
-print("\n\n")
-
-"""
+	print(' | '.join(commands))
