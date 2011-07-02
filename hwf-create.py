@@ -34,7 +34,7 @@ default_min_length = 4
 
 default_max_length = 8
 
-default_words_file = 'words'
+default_words_file = "words"
 
 
 # mutable values
@@ -106,7 +106,7 @@ def matches_all(string, regexes):
 def print_help():
 	"""Print the help message and exit."""
 
-	print('''Usage: {} [OPTIONS] LETTERS
+	print("""Usage: {} [OPTIONS] LETTERS
 This script uses LETTERS to find words that may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 
 The LETTERS string is converted to lowercase and non-lowercase characters are excluded.
@@ -125,19 +125,21 @@ OPTIONS:
         Print diagnostics.
         (default: {})
 
---min-length=N
+--min=N
         Set the minimum length of a matching word.  It must be >= 1.
         (default: {})
 
---max-length=N
+--max=N
         Set the maximum length of a matching word.  It must be >= the minimum length.
         (default: {})
 
 -w, --words=FILE
         Use FILE as the words file.
-        (default: {})'''.format(
+        (default: {})""".format(
         	program_name,
             default_verbose,
+            default_min_length,
+            default_max_length,
             default_words_file))
 
 	exit(0)
@@ -178,8 +180,8 @@ def print_error(s):
 #-------------------------------------------------------------------------------
 
 
-short_options = 'Vhvw:'
-long_options = ['version', 'help', 'verbose', 'min-length=', 'max-length=', 'words=']
+short_options = "Vhvw:"
+long_options = ["version", "help", "verbose", "min=", "max=", "words="]
 
 try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
 
@@ -187,12 +189,12 @@ except getopt.GetoptError as err: print_error(err.msg)
 
 for (option, value) in options:
 
-	if   option in ('-V', '--version') : print_version()
-	elif option in ('-h', '--help') : print_help()
-	elif option in ('-v', '--verbose') : verbose = True
-	elif option in ('--min-length') : min_length = int(value)
-	elif option in ('--max-length') : max_length = int(value)
-	elif option in ('-w', '--words') : words_file = value
+	if   option in ("-V", "--version") : print_version()
+	elif option in ("-h", "--help") : print_help()
+	elif option in ("-v", "--verbose") : verbose = True
+	elif option in ("--min") : min_length = int(value)
+	elif option in ("--max") : max_length = int(value)
+	elif option in ("-w", "--words") : words_file = value
 	else : print_error("Unhandled option '{}'.".format(option))
 
 
@@ -250,6 +252,7 @@ if not os.access(words_file, os.R_OK):
 
 #-------------------------------------------------------------------------------
 
+
 # Read the contents of the words file.
 
 f = open(words_file)
@@ -260,7 +263,7 @@ f.close()
 
 ##### move this somewhere else
 
-#words_anagrams = [''.join(sorted(word)) for word in words]
+#words_anagrams = ["".join(sorted(word)) for word in words]
 
 #words_anagrams_count = collections.Counter(words_anagrams)
 
@@ -278,7 +281,7 @@ letters = letters.lower()
 print_verbose("letters={}".format(letters))
 
 # Remove all non-lowercase characters.
-letters = re.sub('[^a-z]', '', letters)
+letters = re.sub("[^a-z]", "", letters)
 
 print_verbose("letters={}".format(letters))
 
@@ -287,20 +290,20 @@ if len(letters) == 0:
 	print_error("Must give a string that contains letters.")
 
 # Remove duplicate letters and sort the letters.
-letters = ''.join(sorted(set(letters)))
+letters = "".join(sorted(set(letters)))
 
 print_verbose("letters={}".format(letters))
 
-#commands = []
+commands = []
 
 # Include words that are composed of only the letters.
-#command = "grep --perl-regexp '^[" + ''.join(letters) + ']{' + str(min_length) + ',' + str(max_length) + "}$' '" + words_file + "'"
+command = "grep --perl-regexp '^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$' '" + words_file + "'"
 
-#print_verbose("command={}".format(command))
+print_verbose("command={}".format(command))
 
-#commands.append(command)
+commands.append(command)
 
-positive_regex = '^[' + ''.join(letters) + ']{' + str(min_length) + ',' + str(max_length) + '}$'
+positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
 
 print_verbose("positive_regex={}".format(positive_regex))
 
@@ -312,7 +315,7 @@ while len(letters_count) > 0:
 
 	print_verbose("letters_count={}".format(letters_count))
 
-	least_common_letters = ''.join(sorted(get_least_common_keys(letters_count)))
+	least_common_letters = "".join(sorted(get_least_common_keys(letters_count)))
 
 	print_verbose("least_common_letters={}".format(least_common_letters))
 
@@ -323,13 +326,13 @@ while len(letters_count) > 0:
 	assert lowest_count != 0
 
 	# Exclude the least common letters that are repeated more than lowest_count times.
-	#command = "grep --perl-regexp --invert-match '([" + least_common_letters + '])' + (r'.*?\1' * lowest_count) + "'"
+	command = "grep --perl-regexp --invert-match '([" + least_common_letters + "])" + (r".*?\1" * lowest_count) + "'"
 
-	#print_verbose("command={}".format(command))
+	print_verbose("command={}".format(command))
 
-	#commands.append(command)
+	commands.append(command)
 
-	negative_regex = '([' + least_common_letters + '])' + (r'.*?\1' * lowest_count)
+	negative_regex = "([" + least_common_letters + "])" + (r".*?\1" * lowest_count)
 
 	print_verbose("negative_regex={}".format(negative_regex))
 
@@ -337,7 +340,7 @@ while len(letters_count) > 0:
 
 	remove_least_common_keys(letters_count)
 
-#print(' | '.join(commands))
+print_verbose(" | ".join(commands))
 
 print_verbose("negative_regexes={}".format(negative_regexes))
 
@@ -356,9 +359,4 @@ for word in re.findall(positive_regex, words, flags=re.MULTILINE):
 print_verbose("word_matches={}".format(word_matches))
 
 
-#-------------------------------------------------------------------------------
-
-
-print('\n'.join(sorted(word_matches)))
-
-##### 464 369
+print("\n".join(sorted(word_matches)))

@@ -30,7 +30,7 @@ program_name = sys.argv[0]
 
 default_verbose = False
 
-default_words_file = 'words'
+default_words_file = "words"
 
 
 # mutable values
@@ -46,7 +46,7 @@ words_file = default_words_file
 def print_help():
 	"""Print the help message and exit."""
 
-	print('''Usage: {} [OPTIONS] WORD-PATTERN [EXCLUDED-LETTERS]
+	print("""Usage: {} [OPTIONS] WORD-PATTERN [EXCLUDED-LETTERS]
 This script finds possible words that match WORD-PATTERN for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 
 In WORD-PATTERN, use the dot character ('.') to denote an unknown letter.
@@ -67,7 +67,7 @@ OPTIONS:
 
 -w, --words=FILE
         Use FILE as the words file.
-        (default: {})'''.format(
+        (default: {})""".format(
         	program_name,
             default_verbose,
             default_words_file))
@@ -110,8 +110,8 @@ def print_error(s):
 #-------------------------------------------------------------------------------
 
 
-short_options = 'Vhvw:'
-long_options = ['version', 'help', 'verbose', 'words=']
+short_options = "Vhvw:"
+long_options = ["version", "help", "verbose", "words="]
 
 try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
 
@@ -119,10 +119,10 @@ except getopt.GetoptError as err: print_error(err.msg)
 
 for (option, value) in options:
 
-	if   option in ('-V', '--version') : print_version()
-	elif option in ('-h', '--help') : print_help()
-	elif option in ('-v', '--verbose') : verbose = True
-	elif option in ('-w', '--words') : words_file = value
+	if   option in ("-V", "--version") : print_version()
+	elif option in ("-h", "--help") : print_help()
+	elif option in ("-v", "--verbose") : verbose = True
+	elif option in ("-w", "--words") : words_file = value
 	else : print_error("Unhandled option '{}'.".format(option))
 
 
@@ -140,7 +140,7 @@ if len(remaining_args) == 0:
 if len(remaining_args) == 1:
 
 	# The default value of the excluded letters is an empty string.
-	remaining_args.append('')
+	remaining_args.append("")
 
 
 #-------------------------------------------------------------------------------
@@ -166,6 +166,7 @@ if not os.access(words_file, os.R_OK):
 
 #-------------------------------------------------------------------------------
 
+
 # Read the contents of the words file.
 
 f = open(words_file)
@@ -176,7 +177,7 @@ f.close()
 
 ##### move this somewhere else
 
-#words_anagrams = [''.join(sorted(word)) for word in words]
+#words_anagrams = ["".join(sorted(word)) for word in words]
 
 #words_anagrams_count = collections.Counter(words_anagrams)
 
@@ -194,7 +195,7 @@ word_pattern = word_pattern.lower()
 print_verbose("word_pattern={}".format(word_pattern))
 
 # Remove characters not matching lowercase letters and unknown letters.
-word_pattern = re.sub('[^a-z.]', '', word_pattern)
+word_pattern = re.sub("[^a-z.]", "", word_pattern)
 
 print_verbose("word_pattern={}".format(word_pattern))
 
@@ -203,7 +204,7 @@ if len(word_pattern) == 0:
 	print_error("Must give non-empty word pattern.")
 
 # Enclose the word pattern with anchors.
-word_pattern = '^' + word_pattern + '$'
+word_pattern = "^" + word_pattern + "$"
 
 print_verbose("word_pattern={}".format(word_pattern))
 
@@ -221,43 +222,39 @@ excluded_letters = excluded_letters.lower()
 print_verbose("excluded_letters={}".format(excluded_letters))
 
 # Remove characters not matching lowercase letters.
-excluded_letters = re.sub('[^a-z]', '', excluded_letters)
+excluded_letters = re.sub("[^a-z]", "", excluded_letters)
 
 print_verbose("excluded_letters={}".format(excluded_letters))
 
 # Add letters in the word pattern to the excluded letters.
-excluded_letters += re.sub('[^a-z]', '', word_pattern)
+excluded_letters += re.sub("[^a-z]", "", word_pattern)
 
 print_verbose("excluded_letters={}".format(excluded_letters))
 
 # Remove duplicate letters and sort the letters.
-excluded_letters = ''.join(sorted(set(excluded_letters)))
+excluded_letters = "".join(sorted(set(excluded_letters)))
 
 print_verbose("excluded_letters={}".format(excluded_letters))
 
 
 #-------------------------------------------------------------------------------
 
+
 if len(excluded_letters) != 0:
 
 	# Replace the unknown letter pattern with the excluded letters pattern.
 	##### must include newline in negative character class in multiline mode
-	word_pattern = re.sub('\.', r'[^\n' + excluded_letters + ']', word_pattern)
-	#word_pattern = re.sub('\.', '[a-z&&' + r'[^\n' + excluded_letters + ']]', word_pattern)
-	#word_pattern = re.sub('\.', '[a-z-' + r'[\n' + excluded_letters + ']]', word_pattern)
+	word_pattern = re.sub(r"\.", "[^" + excluded_letters + r"\n]", word_pattern)
 
 	print_verbose("word_pattern={}".format(word_pattern))
 
 
 #-------------------------------------------------------------------------------
 
+
 letters_count = collections.Counter()
 
 for word in re.findall(word_pattern, words, flags=re.MULTILINE):
-
-	#if word.find('\n'):
-	#if '\n' in word:
-		#print(r"word ({}) has \n".format(word))
 
 	#letters_count += collections.Counter(word)
 	##### try this:  find the letters that occur in the most words, rather than the letters that occur most often
@@ -268,7 +265,9 @@ for word in re.findall(word_pattern, words, flags=re.MULTILINE):
 
 print_verbose("letters_count={}".format(letters_count))
 
+
 #-------------------------------------------------------------------------------
+
 
 # Remove excluded letters from the letters count.
 for excluded_letter in excluded_letters:
@@ -279,36 +278,32 @@ for excluded_letter in excluded_letters:
 
 print_verbose("letters_count={}".format(letters_count))
 
-"""
-#letters_count_inverse = collections.defaultdict(list)
 
-# Invert the keys and values of the letters count.
-#for (k, v) in letters_count.items():
-
-	#letters_count_inverse[v].append(k)
-"""
-
-for (k, v) in reversed(letters_count.most_common()):
-
-	print("{}={}".format(k.upper(), v))
+#-------------------------------------------------------------------------------
 
 
-##### remove this later
 if len(letters_count) > 0:
 
-	"""
-	#for (k,v) in letters_count_inverse.items():
-		#for (k,v) in reversed(list(letters_count_inverse.items())):
+	# The letter count will be right justified to the width of the largest number.
+	width = str(len(str(letters_count.most_common()[0][1])))
 
-		#print("{} = {}".format(k, ' '.join(sorted([x.upper() for x in v]))))
-		#print("{} = {}".format(k, ' '.join(sorted(map(str.upper, v)))))
 
-	#print("    ".join(["{} = {}".format(k, ' '.join(sorted([x.upper() for x in v]))) for (k,v) in letters_count_inverse.items()]))
-	"""
+	letters_count_inverse = collections.defaultdict(list)
 
-	#print("  ".join(["{}={}".format(k.upper(), v) for (k, v) in letters_count.most_common()]))
-	#print("\n".join(["{}={}".format(k.upper(), v) for (k, v) in letters_count.most_common()]))
-	#print("\n".join(["{}={}".format(k.upper(), v) for (k, v) in reversed(letters_count.most_common())]))
-	pass
+	# Invert the keys and values of the letters count.
+	for (k, v) in letters_count.items():
 
-##### 327 283
+		letters_count_inverse[v].append(k)
+
+	print_verbose("letters_count_inverse={}".format(letters_count_inverse))
+
+
+	for (k, v) in sorted(letters_count_inverse.items()):
+
+		# Pad the key with spaces on the left so it is right justified.
+		k_string = ("{:" + width + "}").format(k)
+
+		# The letters are converted to uppercase and joined together.
+		v_joined = " ".join(sorted([x.upper() for x in v]))
+
+		print("{} = {}".format(k_string, v_joined))
