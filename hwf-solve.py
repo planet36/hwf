@@ -20,38 +20,66 @@ import collections
 import getopt
 import os
 import re
-#import signal
 import sys
 
 
 program_name = sys.argv[0]
 
 
-##### usage: ./hwf-solve.py ~/wwf.txt ..i.a. iaste
-##### usage: ./hwf-solve.py [--dictionary=FILE] ..i.a. iaste
+# default values
+
+default_verbose = False
+
+default_dictionary = '/usr/share/dict/words'
 
 
+# mutable values
+
+verbose = default_verbose
+
+dictionary = default_dictionary
 
 
+#-------------------------------------------------------------------------------
 
 
+def print_help():
+	"""Print the help message and exit."""
 
+	print('''Usage: {} [OPTIONS] WORD-PATTERN EXCLUDED-LETTERS
+This script finds possible words that match WORD-PATTERN for the game "Hanging With Friends".
+##### creates a command to find possible words using LETTERS for the game "Hanging With Friends".
 
+In the word pattern, use '.' to denote an unknown letter.
 
+#####
 
+OPTIONS:
 
+-V, --version
+        Print the version information and exit.
 
+-h, --help
+        Print this message and exit.
 
+-v, --verbose
+        Print diagnostics.
+        (default: {})
 
+-d, --dictionary=FILE
+        Use FILE as the dictionary.
+        (default: {})'''.format(
+        	program_name,
+            default_verbose,
+            default_dictionary))
 
-
-
+	exit(0)
 
 
 def print_version():
 	"""Print the version information and exit."""
 
-	print(program_name + " 2011-06-28")
+	print(program_name + " 2011-06-29")
 
 	print("Written by Steve Ward")
 
@@ -69,8 +97,6 @@ def print_warning(s):
 
 	print("Warning: {}".format(s), file=sys.stderr)
 
-	#cleanup()
-
 
 def print_error(s):
 	"""Print the error message and exit."""
@@ -79,202 +105,184 @@ def print_error(s):
 
 	print("Try '{} --help' for more information.".format(program_name))
 
-	#cleanup()
-
 	exit(1)
 
 
+#-------------------------------------------------------------------------------
 
 
+short_options = 'Vhvd:'
+long_options = ['version', 'help', 'verbose', 'dictionary=']
+
+try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
+
+except getopt.GetoptError as err: print_error(err.msg)
+
+for (option, value) in options:
+
+	if   option in ('-V', '--version') : print_version()
+	elif option in ('-h', '--help') : print_help()
+	elif option in ('-v', '--verbose') : verbose = True
+	elif option in ('-d', '--dictionary') : dictionary = value
+	else : print_error("Unhandled option '{}'.".format(option))
 
 
+#-------------------------------------------------------------------------------
+# Validate dictionary.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-def signal_handler(signal_num, execution_frame):
-
-	print()
-
-	exit(0)
-
-
-signal.signal(signal.SIGINT, signal_handler) # Interactive attention signal. (Ctrl-C)
-signal.signal(signal.SIGTERM, signal_handler) # Termination request. (kill default signal)
-"""
-
-
-if len(sys.argv) < 4:
-
-	exit("must give 3 strings")
-
-
-
-##### this should be an option later
-dictionary = sys.argv[1].strip()
+print_verbose("dictionary={}".format(dictionary))
 
 
 if not os.path.exists(dictionary):
 
-	exit("file does not exist")
+	print_error("Dictionary '{}' does not exist.".format(dictionary))
 
 
 if not os.path.isfile(dictionary):
 
-	exit("file is not a file")
+	print_error("Dictionary '{}' is not a file.".format(dictionary))
 
 
 if not os.access(dictionary, os.R_OK):
 
-	exit("file is not readable")
+	print_error("Dictionary '{}' is not readable.".format(dictionary))
 
 
-f = open(dictionary, mode='r')
+#-------------------------------------------------------------------------------
+
+
+print_verbose("remaining_args={}".format(remaining_args))
+
+
+if len(remaining_args) == 0:
+
+	print_error("Must give at least 1 operand.")
+
+
+if len(remaining_args) == 1:
+
+	# The default value of excluded_letters is an empty string.
+	remaining_args.append('')
+
+
+#-------------------------------------------------------------------------------
+
+# Read the contents of the dictionary file.
+
+f = open(dictionary)
 
 dictionary_words = f.readlines()
 
 f.close()
 
+# Strip whitespace from all lines.
 dictionary_words = map(str.strip, dictionary_words)
+
+##### move this somewhere else
 
 #dictionary_anagrams = [''.join(sorted(dictionary_word)) for dictionary_word in dictionary_words]
 
 #dictionary_anagrams_count = collections.Counter(dictionary_anagrams)
 
 
-unknown_letter_pattern = re.compile('\.')
+#-------------------------------------------------------------------------------
+# Validate the word pattern.
 
+word_pattern = remaining_args[0].strip()
 
-sed_command = r"sed --unbuffered --regexp-extended 's/([[:alpha:]])([[:alpha:]])/\1\n\2/g'"
+print_verbose("word_pattern={}".format(word_pattern))
 
+# Convert the string to lowercase.
+word_pattern = word_pattern.lower()
 
-#while True:
+print_verbose("word_pattern={}".format(word_pattern))
 
-#word_pattern = raw_input('Enter word_pattern: ').strip()
-word_pattern = sys.argv[2].strip()
+# Remove characters not matching lowercase letters and unknown letters.
+word_pattern = re.sub('[^a-z.]', '', word_pattern)
 
-#print("word_pattern={}".format(word_pattern))
+print_verbose("word_pattern={}".format(word_pattern))
 
 if len(word_pattern) == 0:
 
-	exit("Must give non-empty word pattern.")
+	print_error("Must give non-empty word pattern.")
 
-	#continue
+# Enclose the word pattern with anchors.
+word_pattern = '^' + word_pattern + '$'
 
-#excluded_letters = raw_input('Enter excluded letters: ').strip()
-excluded_letters = sys.argv[3].strip()
-
-#print("excluded_letters={}".format(excluded_letters))
-
-if len(excluded_letters) == 0:
-
-	exit("Must give non-empty excluded letters.")
-
-	#continue
-
-#excluded_letters_character_class = '[^' + excluded_letters + ']'
-
-#print()
-
-pattern = '^' + re.sub(unknown_letter_pattern, '[^' + excluded_letters + ']', word_pattern) + '$'
+print_verbose("word_pattern={}".format(word_pattern))
 
 
+#-------------------------------------------------------------------------------
+# Validate the excluded letters.
+
+excluded_letters = remaining_args[1].strip()
+
+print_verbose("excluded_letters={}".format(excluded_letters))
+
+# Convert the string to lowercase.
+excluded_letters = excluded_letters.lower()
+
+print_verbose("excluded_letters={}".format(excluded_letters))
+
+# Remove characters not matching lowercase letters.
+excluded_letters = re.sub('[^a-z]', '', excluded_letters)
+
+print_verbose("excluded_letters={}".format(excluded_letters))
+
+# Add letters in the word pattern to the excluded letters.
+excluded_letters += re.sub('[^a-z]', '', word_pattern)
+
+print_verbose("excluded_letters={}".format(excluded_letters))
+
+# Remove duplicate letters and sort the letters.
+excluded_letters = ''.join(sorted(excluded_letters))
+
+print_verbose("excluded_letters={}".format(excluded_letters))
 
 
-pattern = re.compile(pattern)
+#-------------------------------------------------------------------------------
 
-word_matches = []
+if len(excluded_letters) != 0:
 
+	# Replace the unknown letter pattern with the excluded letters pattern.
+	word_pattern = re.sub('\.', '[^' + excluded_letters + ']', word_pattern)
+
+	print_verbose("word_pattern={}".format(word_pattern))
+
+
+word_pattern = re.compile(word_pattern)
+
+
+#-------------------------------------------------------------------------------
+
+
+letters_count = collections.Counter()
+
+# Search for the word pattern in the dictionary words.
 for dictionary_word in dictionary_words:
 
-	# re.search(pattern, string, flags=0)
-	if re.search(pattern, dictionary_word):
+	if re.search(word_pattern, dictionary_word):
 
-		word_matches.append(dictionary_word)
+		letters_count += collections.Counter(dictionary_word)
 
 		print(dictionary_word)
 
-#print()
+print_verbose("letters_count={}".format(letters_count))
 
-letters_count = collections.Counter(list(''.join(word_matches)))
 
-#print("letters_count={}".format(letters_count))
+#-------------------------------------------------------------------------------
 
-for excluded_letter in list(excluded_letters):
+
+# Remove excluded letters from the letters count.
+for excluded_letter in excluded_letters:
 
 	if excluded_letter in letters_count:
 
 		del letters_count[excluded_letter]
 
+print_verbose("letters_count={}".format(letters_count))
 
 
-##### print this in a better way
-#print("letters_count={}".format(letters_count))
-#print("letters_count={}".format(dict(letters_count)))
+if len(letters_count) > 0:
 
-#print(letters_count)
-##### casting to dict loses order
-#print(dict(letters_count))
-
-#print(letters_count.most_common())
-
-
-#for (k, v) in letters_count.most_common():
-
-	#print("{}={}".format(string.upper(k), v), end="  ")
-	#print("{}={}".format(k.upper(), v), end="  ")
-
-
-#print()
-#import pprint
-
-
-
-#print("  ".join(["{}={}".format(string.upper(k), v) for (k, v) in letters_count.most_common()]))
-print("  ".join(
-			["{}={}".format(k.upper(), v) for (k, v) in letters_count.most_common()]
-		)
-	)
-
-#pprint.pprint(letters_count)
-#pprint.pprint(dict(letters_count))
-
-
-#print()
-
-#exit()
-#continue
-
-
-"""
-
-commands = []
-# Substitute unknown letters with the excluded letters character class.
-# re.sub(pattern, repl, string)
-commands.append("grep --perl-regexp '{}' {}".format(pattern, dictionary))
-commands.append(sed_command)
-commands.append(sed_command)
-commands.append("grep --perl-regexp '[^{}]'".format(excluded_letters))
-commands.append("sort")
-commands.append("uniq --count")
-commands.append("sort -g")
-
-print()
-print(' | '.join(commands))
-print()
-
-
-"""
-
+	print("  ".join(["{}={}".format(k.upper(), v) for (k, v) in letters_count.most_common()]))

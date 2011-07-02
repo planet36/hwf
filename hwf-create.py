@@ -18,9 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
 import getopt
-#import os
-#import re
-#import signal
+import re
 import sys
 
 
@@ -31,7 +29,7 @@ program_name = sys.argv[0]
 
 default_verbose = False
 
-default_dictionary = '~/wwf.txt'
+default_dictionary = '/usr/share/dict/words'
 
 
 # mutable values
@@ -41,23 +39,46 @@ verbose = default_verbose
 dictionary = default_dictionary
 
 
-
-##### usage: ./hwf-create.py [--dictionary=FILE] ndyvefambuaw
-
+#-------------------------------------------------------------------------------
 
 
+def print_help():
+	"""Print the help message and exit."""
 
+	print('''Usage: {} [OPTIONS] LETTERS [LETTERS...]
+This script creates a command to find possible words using LETTERS for the game "Hanging With Friends".
 
+LETTERS is converted to lowercase and non-lowercase characters are excluded. #####
 
+#####
 
+OPTIONS:
 
+-V, --version
+        Print the version information and exit.
 
+-h, --help
+        Print this message and exit.
+
+-v, --verbose
+        Print diagnostics.
+        (default: {})
+
+-d, --dictionary=FILE
+        Use FILE as the dictionary.
+        FILE is not opened.  It is only printed in the created command. #####
+        (default: {})'''.format(
+        	program_name,
+            default_verbose,
+            default_dictionary))
+
+	exit(0)
 
 
 def print_version():
 	"""Print the version information and exit."""
 
-	print(program_name + " 2011-06-28")
+	print(program_name + " 2011-06-29")
 
 	print("Written by Steve Ward")
 
@@ -75,8 +96,6 @@ def print_warning(s):
 
 	print("Warning: {}".format(s), file=sys.stderr)
 
-	#cleanup()
-
 
 def print_error(s):
 	"""Print the error message and exit."""
@@ -85,96 +104,137 @@ def print_error(s):
 
 	print("Try '{} --help' for more information.".format(program_name))
 
-	#cleanup()
-
 	exit(1)
 
 
+#-------------------------------------------------------------------------------
 
 
+short_options = 'Vhvd:'
+long_options = ['version', 'help', 'verbose', 'dictionary=']
+
+try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
+
+except getopt.GetoptError as err: print_error(err.msg)
+
+for (option, value) in options:
+
+	if   option in ('-V', '--version') : print_version()
+	elif option in ('-h', '--help') : print_help()
+	elif option in ('-v', '--verbose') : verbose = True
+	elif option in ('-d', '--dictionary') : dictionary = value
+	else : print_error("Unhandled option '{}'.".format(option))
 
 
+##### remove later
+"""
+#-------------------------------------------------------------------------------
+# Validate dictionary.
+
+if not os.path.exists(dictionary):
+
+	print_warning("Dictionary '{}' does not exist.".format(dictionary))
 
 
+if not os.path.isfile(dictionary):
+
+	print_warning("Dictionary '{}' is not a file.".format(dictionary))
 
 
+if not os.access(dictionary, os.R_OK):
+
+	print_warning("Dictionary '{}' is not readable.".format(dictionary))
+"""
 
 
+#-------------------------------------------------------------------------------
 
 
+print_verbose("remaining_args={}".format(remaining_args))
 
 
+if len(remaining_args) == 0:
+
+	print_error("Must give at least 1 operand.")
 
 
+#-------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-# Get the least common elements from the Counter object.
-def get_least_common(c):
+def get_least_common_keys(c):
+	"""Get the keys of the least common elements from the Counter object."""
 
 	lowest_count = c.most_common()[-1][1]
 
 	return [key for key in c if c[key] == lowest_count]
 
 
-# Remove the least common elements from the Counter object.
-def remove_least_common(c):
+def remove_least_common_keys(c):
+	"""Remove the keys of the least common elements from the Counter object."""
 
-	for key in get_least_common(c):
+	for key in get_least_common_keys(c):
 
 		del c[key]
 
 
+#-------------------------------------------------------------------------------
 
 
-##### parse options
+for letters in remaining_args:
 
-for arg in sys.argv[1:]:
+	print_verbose("letters={}".format(letters))
 
-	#print("arg={}".format(arg))
+	# Convert the string to lowercase.
+	letters = letters.lower()
 
-	if len(arg) == 0:
+	print_verbose("letters={}".format(letters))
+
+	# Remove all non-lowercase characters.
+	letters = re.sub('[^a-z]', '', letters)
+
+	print_verbose("letters={}".format(letters))
+
+	if len(letters) == 0:
 
 		continue
 
-	c = collections.Counter(list(arg))
+	letters_count = collections.Counter(letters)
+
+	# Remove duplicate letters and sort the letters.
+	letters = ''.join(sorted(letters))
+
+	print_verbose("letters={}".format(letters))
 
 	commands = []
 
-	commands.append("grep --perl-regexp '^[" + ''.join(c.keys()) + "]{4,8}$' " + dictionary)
+	# Include words that are composed of only the letters.
+	command = "grep --perl-regexp '^[" + ''.join(letters) + "]{4,8}$' '" + dictionary + "'"
 
-	while len(c) > 0:
+	print_verbose("command={}".format(command))
 
-		#print("c={}".format(c))
+	commands.append(command)
 
-		#print("len(c)={}".format(len(c)))
+	while len(letters_count) > 0:
 
-		#print("c.keys={}".format(''.join(c.keys())))
+		print_verbose("letters_count={}".format(letters_count))
 
-		lowest_count = c.most_common()[-1][1]
+		least_common_letters = ''.join(sorted(get_least_common_keys(letters_count)))
 
-		#print("lowest_count={}".format(lowest_count))
+		print_verbose("least_common_letters={}".format(least_common_letters))
 
-		least_common = ''.join(get_least_common(c))
+		lowest_count = letters_count.most_common()[-1][1]
 
-		#print("least_common={}".format(least_common))
+		assert lowest_count != 0
 
-		##### looks interesting: c - collections.Counter(c.keys())
+		print_verbose("lowest_count={}".format(lowest_count))
 
-		commands.append("grep --perl-regexp --invert-match '([" + least_common + "])" + (r".*\1" * lowest_count) + "'")
+		# Exclude the least common letters that are repeated more than lowest_count times.
+		command = "grep --perl-regexp --invert-match '([" + least_common_letters + "])" + (r".*?\1" * lowest_count) + "'"
 
-		remove_least_common(c)
+		print_verbose("command={}".format(command))
 
-		#print("\n\n")
+		commands.append(command)
 
+		remove_least_common_keys(letters_count)
 
 	print(' | '.join(commands))
