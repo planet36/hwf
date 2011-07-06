@@ -30,12 +30,16 @@ program_name = sys.argv[0]
 
 default_verbose = False
 
+default_last_vowel_given = True
+
 default_words_file = "words"
 
 
 # mutable values
 
 verbose = default_verbose
+
+last_vowel_given = default_last_vowel_given
 
 words_file = default_words_file
 
@@ -65,11 +69,18 @@ OPTIONS:
         Print diagnostics.
         (default: {})
 
+--last-vowel
+        Indicate that the last vowel is given in WORD-PATTERN.  Use '--no-last-vowel' to indicate that the last vowel is not given in WORD-PATTERN.
+        ##### Hanging With Friends has a rule about always showing the last vowel when presenting a word pattern to the user to solve
+        ##### all unknown letters after the last vowel need to have all vowels [aeiou] in the negative character class
+        (default: {})
+
 -w, --words=FILE
         Use FILE as the words file.
         (default: {})""".format(
         	program_name,
             default_verbose,
+            default_last_vowel_given,
             default_words_file))
 
 	exit(0)
@@ -78,7 +89,7 @@ OPTIONS:
 def print_version():
 	"""Print the version information and exit."""
 
-	print(program_name + " 2011-06-30")
+	print(program_name + " 2011-07-05")
 
 	print("Written by Steve Ward")
 
@@ -111,7 +122,7 @@ def print_error(s):
 
 
 short_options = "Vhvw:"
-long_options = ["version", "help", "verbose", "words="]
+long_options = ["version", "help", "verbose", "last-vowel", "no-last-vowel", "words="]
 
 try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
 
@@ -122,6 +133,8 @@ for (option, value) in options:
 	if   option in ("-V", "--version") : print_version()
 	elif option in ("-h", "--help") : print_help()
 	elif option in ("-v", "--verbose") : verbose = True
+	elif option in ("--last-vowel") : last_vowel_given = True
+	elif option in ("--no-last-vowel") : last_vowel_given = False
 	elif option in ("-w", "--words") : words_file = value
 	else : print_error("Unhandled option '{}'.".format(option))
 
@@ -203,11 +216,6 @@ if len(word_pattern) == 0:
 
 	print_error("Must give non-empty word pattern.")
 
-# Enclose the word pattern with anchors.
-word_pattern = "^" + word_pattern + "$"
-
-print_verbose("word_pattern={}".format(word_pattern))
-
 
 #-------------------------------------------------------------------------------
 # Validate the excluded letters.
@@ -236,17 +244,63 @@ excluded_letters = "".join(sorted(set(excluded_letters)))
 
 print_verbose("excluded_letters={}".format(excluded_letters))
 
+# Add all the vowels to the excluded letters pattern.
+# Remove duplicate letters and sort the letters.
+excluded_letters_vowels = "".join(sorted(set(excluded_letters + "aeiou")))
+
+print_verbose("excluded_letters_vowels={}".format(excluded_letters_vowels))
+
+# In multiline mode, the newline must be included in the negative character class.
+excluded_letters_pattern = "[^" + excluded_letters + r"\n]"
+
+print_verbose("excluded_letters_pattern={}".format(excluded_letters_pattern))
+
+# In multiline mode, the newline must be included in the negative character class.
+excluded_letters_vowels_pattern = "[^" + excluded_letters_vowels + r"\n]"
+
+print_verbose("excluded_letters_vowels_pattern={}".format(excluded_letters_vowels_pattern))
+
 
 #-------------------------------------------------------------------------------
 
 
-if len(excluded_letters) != 0:
+last_vowel_index = -1
 
-	# Replace the unknown letter pattern with the excluded letters pattern.
-	##### must include newline in negative character class in multiline mode
-	word_pattern = re.sub(r"\.", "[^" + excluded_letters + r"\n]", word_pattern)
+last_vowel_pattern = "[aeiou][^aeiou]*$"
 
-	print_verbose("word_pattern={}".format(word_pattern))
+# Search for the last vowel in the word pattern.
+last_vowel_match = re.search(last_vowel_pattern, word_pattern)
+
+# If a vowel was found,
+if last_vowel_match:
+
+	# Store the index of the last vowel.
+	last_vowel_index = last_vowel_match.start()
+
+print_verbose("last_vowel_index={}".format(last_vowel_index))
+
+
+def get_excluded_letters_pattern(match):
+	"""Get the excluded letters pattern."""
+
+	# If the last vowel was given and the match occurs after the last vowel,
+	if last_vowel_given and match.start() > last_vowel_index:
+
+		return excluded_letters_vowels_pattern
+
+	else:
+
+		return excluded_letters_pattern
+
+
+# Replace the unknown letter pattern with the excluded letters pattern.
+word_pattern = re.sub(r"\.", get_excluded_letters_pattern, word_pattern)
+
+
+# Enclose the word pattern with anchors.
+word_pattern = "^" + word_pattern + "$"
+
+print_verbose("word_pattern={}".format(word_pattern))
 
 
 #-------------------------------------------------------------------------------
