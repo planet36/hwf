@@ -294,18 +294,18 @@ letters = "".join(sorted(set(letters)))
 
 print_verbose("letters={}".format(letters))
 
+positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
+
+print_verbose("positive_regex={}".format(positive_regex))
+
 commands = []
 
 # Include words that are composed of only the letters.
-command = "grep --perl-regexp '^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$' '" + words_file + "'"
+command = "grep --perl-regexp '" + positive_regex + "' '" + words_file + "'"
 
 print_verbose("command={}".format(command))
 
 commands.append(command)
-
-positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
-
-print_verbose("positive_regex={}".format(positive_regex))
 
 negative_regexes = []
 
@@ -325,18 +325,18 @@ while len(letters_count) > 0:
 
 	assert lowest_count != 0
 
-	# Exclude the least common letters that are repeated more than lowest_count times.
-	command = "grep --perl-regexp --invert-match '([" + least_common_letters + "])" + (r".*?\1" * lowest_count) + "'"
-
-	print_verbose("command={}".format(command))
-
-	commands.append(command)
-
 	negative_regex = "([" + least_common_letters + "])" + (r".*?\1" * lowest_count)
 
 	print_verbose("negative_regex={}".format(negative_regex))
 
 	negative_regexes.append(negative_regex)
+
+	# Exclude the least common letters that are repeated more than lowest_count times.
+	command = "grep --perl-regexp --invert-match '" + negative_regex + "'"
+
+	print_verbose("command={}".format(command))
+
+	commands.append(command)
 
 	remove_least_common_keys(letters_count)
 
