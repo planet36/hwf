@@ -251,8 +251,6 @@ if not os.access(words_file, os.R_OK):
 
 
 #-------------------------------------------------------------------------------
-
-
 # Read the contents of the words file.
 
 f = open(words_file)
@@ -260,12 +258,6 @@ f = open(words_file)
 words = f.read()
 
 f.close()
-
-##### move this somewhere else
-
-#words_anagrams = ["".join(sorted(word)) for word in words]
-
-#words_anagrams_count = collections.Counter(words_anagrams)
 
 
 #-------------------------------------------------------------------------------
@@ -294,10 +286,12 @@ letters = "".join(sorted(set(letters)))
 
 print_verbose("letters={}".format(letters))
 
-positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
+#positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
+positive_regex = "^[" + letters + "]{" + str(min_length) + "," + str(max_length) + "}$"
 
 print_verbose("positive_regex={}".format(positive_regex))
 
+##### these are shell commands that could be executed to get the same results as this script.
 commands = []
 
 # Include words that are composed of only the letters.
@@ -348,15 +342,9 @@ print_verbose("negative_regexes={}".format(negative_regexes))
 #-------------------------------------------------------------------------------
 
 
-word_matches = []
-
 for word in re.findall(positive_regex, words, flags=re.MULTILINE):
 
 	if matches_none(word, negative_regexes):
 
-		word_matches.append(word)
+		print(word)
 
-print_verbose("word_matches={}".format(word_matches))
-
-
-print("\n".join(sorted(word_matches)))
