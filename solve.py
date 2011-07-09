@@ -54,6 +54,7 @@ def print_help():
 This script finds possible words that match WORD-PATTERN for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 
 In WORD-PATTERN, use the dot character ('.') to denote an unknown letter.
+##### can also use '?' for unknown letters
 
 #####
 
@@ -178,8 +179,6 @@ if not os.access(words_file, os.R_OK):
 
 
 #-------------------------------------------------------------------------------
-
-
 # Read the contents of the words file.
 
 f = open(words_file)
@@ -187,12 +186,6 @@ f = open(words_file)
 words = f.read()
 
 f.close()
-
-##### move this somewhere else
-
-#words_anagrams = ["".join(sorted(word)) for word in words]
-
-#words_anagrams_count = collections.Counter(words_anagrams)
 
 
 #-------------------------------------------------------------------------------
@@ -208,7 +201,7 @@ word_pattern = word_pattern.lower()
 print_verbose("word_pattern={}".format(word_pattern))
 
 # Remove characters not matching lowercase letters and unknown letters.
-word_pattern = re.sub("[^a-z.]", "", word_pattern)
+word_pattern = re.sub("[^a-z.?]", "", word_pattern)
 
 print_verbose("word_pattern={}".format(word_pattern))
 
@@ -293,8 +286,8 @@ def get_excluded_letters_pattern(match):
 		return excluded_letters_pattern
 
 
-# Replace the unknown letter pattern with the excluded letters pattern.
-word_pattern = re.sub(r"\.", get_excluded_letters_pattern, word_pattern)
+# Replace all unknown letters with the excluded letters pattern.
+word_pattern = re.sub("[.?]", get_excluded_letters_pattern, word_pattern)
 
 
 # Enclose the word pattern with anchors.
@@ -361,3 +354,4 @@ if len(letters_count) > 0:
 		v_joined = " ".join(sorted([x.upper() for x in v]))
 
 		print("{} = {}".format(k_string, v_joined))
+
