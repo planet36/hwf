@@ -107,11 +107,16 @@ def print_help():
 	"""Print the help message and exit."""
 
 	print("""Usage: {} [OPTIONS] LETTERS
+Create a word using LETTERS.
+#####
 This script uses LETTERS to find words that may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
+#####
+Find words composed of a subset of LETTERS.  The words may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
+
 
 The LETTERS string is converted to lowercase and non-lowercase characters are excluded.
-
 #####
+Non-alphabetical characters in LETTERS are ignored.
 
 OPTIONS:
 
@@ -126,11 +131,11 @@ OPTIONS:
         (default: {})
 
 --min=N
-        Set the minimum length of a matching word.  It must be >= 1.
+        Set the minimum length of the matched words.  It must be at least 1.
         (default: {})
 
 --max=N
-        Set the maximum length of a matching word.  It must be >= the minimum length.
+        Set the maximum length of the matched words.  It must be at least the minimum length.
         (default: {})
 
 -w, --words=FILE
@@ -148,7 +153,7 @@ OPTIONS:
 def print_version():
 	"""Print the version information and exit."""
 
-	print(program_name + " 2011-06-30")
+	print(program_name + " 2011-07-11")
 
 	print("Written by Steve Ward")
 
@@ -216,7 +221,7 @@ print_verbose("min_length={}".format(min_length))
 
 if min_length < 1:
 
-	print_error("Minimum length ({}) must be >= 1.".format(min_length))
+	print_error("Minimum length ({}) must be at least 1.".format(min_length))
 
 
 #-------------------------------------------------------------------------------
@@ -226,7 +231,7 @@ print_verbose("max_length={}".format(max_length))
 
 if max_length < min_length:
 
-	print_error("Maximum length ({}) must be >= minimum length ({}).".format(max_length, min_length))
+	print_error("Maximum length ({}) must be at least the minimum length ({}).".format(max_length, min_length))
 
 
 #-------------------------------------------------------------------------------
@@ -286,12 +291,12 @@ letters = "".join(sorted(set(letters)))
 
 print_verbose("letters={}".format(letters))
 
-#positive_regex = "^[" + "".join(letters) + "]{" + str(min_length) + "," + str(max_length) + "}$"
 positive_regex = "^[" + letters + "]{" + str(min_length) + "," + str(max_length) + "}$"
 
 print_verbose("positive_regex={}".format(positive_regex))
 
 ##### these are shell commands that could be executed to get the same results as this script.
+# An array of shell commands that could be executed to get the same results as this script.
 commands = []
 
 # Include words that are composed of only the letters.
@@ -342,8 +347,10 @@ print_verbose("negative_regexes={}".format(negative_regexes))
 #-------------------------------------------------------------------------------
 
 
+# For each word that matches the positive regex,
 for word in re.findall(positive_regex, words, flags=re.MULTILINE):
 
+	# If the word matches none of the negative regexes,
 	if matches_none(word, negative_regexes):
 
 		print(word)
