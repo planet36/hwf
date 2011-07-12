@@ -52,11 +52,11 @@ def print_help():
 
 	print("""Usage: {} [OPTIONS] WORD-PATTERN [EXCLUDED-LETTERS]
 This script finds possible words that match WORD-PATTERN for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
-
-In WORD-PATTERN, use the dot character ('.') to denote an unknown letter.
-##### can also use '?' for unknown letters
-
 #####
+Find words that match WORD-PATTERN but do not have EXCLUDED-LETTERS.
+#####
+
+In WORD-PATTERN, use the dot ('.') or question mark ('?') to denote an unknown letter.
 
 OPTIONS:
 
@@ -72,7 +72,7 @@ OPTIONS:
 
 --last-vowel
         Indicate that the last vowel is given in WORD-PATTERN.  Use '--no-last-vowel' to indicate that the last vowel is not given in WORD-PATTERN.
-        ##### Hanging With Friends has a rule about always showing the last vowel when presenting a word pattern to the user to solve
+        ##### Hanging With Friends has a rule about always showing the last vowel when presenting a word pattern to the user to solve.
         ##### all unknown letters after the last vowel need to have all vowels [aeiou] in the negative character class
         (default: {})
 
@@ -90,7 +90,7 @@ OPTIONS:
 def print_version():
 	"""Print the version information and exit."""
 
-	print(program_name + " 2011-07-05")
+	print(program_name + " 2011-07-011")
 
 	print("Written by Steve Ward")
 
