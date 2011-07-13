@@ -287,11 +287,7 @@ if len(letters) == 0:
 	print_error("Must give a string that contains letters.")
 
 # Remove duplicate letters and sort the letters.
-letters = "".join(sorted(set(letters)))
-
-print_verbose("letters={}".format(letters))
-
-positive_regex = "^[" + letters + "]{" + str(min_length) + "," + str(max_length) + "}$"
+positive_regex = "^[" + "".join(sorted(set(letters))) + "]{" + str(min_length) + "," + str(max_length) + "}$"
 
 print_verbose("positive_regex={}".format(positive_regex))
 
