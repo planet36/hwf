@@ -287,6 +287,7 @@ if len(letters) == 0:
 	print_error("Must give a string that contains letters.")
 
 # Remove duplicate letters and sort the letters.
+# Include words that are composed of only the letters.
 positive_regex = "^[" + "".join(sorted(set(letters))) + "]{" + str(min_length) + "," + str(max_length) + "}$"
 
 print_verbose("positive_regex={}".format(positive_regex))
@@ -295,7 +296,6 @@ print_verbose("positive_regex={}".format(positive_regex))
 # An array of shell commands that could be executed to get the same results as this script.
 commands = []
 
-# Include words that are composed of only the letters.
 command = "grep --perl-regexp '" + positive_regex + "' '" + words_file + "'"
 
 print_verbose("command={}".format(command))
@@ -320,13 +320,13 @@ while len(letters_count) > 0:
 
 	assert lowest_count != 0
 
+	# Exclude the least common letters that are repeated more than lowest_count times.
 	negative_regex = "([" + least_common_letters + "])" + (r".*?\1" * lowest_count)
 
 	print_verbose("negative_regex={}".format(negative_regex))
 
 	negative_regexes.append(negative_regex)
 
-	# Exclude the least common letters that are repeated more than lowest_count times.
 	command = "grep --perl-regexp --invert-match '" + negative_regex + "'"
 
 	print_verbose("command={}".format(command))
