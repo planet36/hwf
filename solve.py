@@ -286,8 +286,10 @@ def get_excluded_letters_pattern(match):
 		return excluded_letters_pattern
 
 
+unknown_letter_pattern = "[.?]"
+
 # Replace all unknown letters with the excluded letters pattern.
-word_pattern = re.sub("[.?]", get_excluded_letters_pattern, word_pattern)
+word_pattern = re.sub(unknown_letter_pattern, get_excluded_letters_pattern, word_pattern)
 
 
 # Enclose the word pattern with anchors.
