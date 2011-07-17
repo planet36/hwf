@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<!--
+Copyright (C) 2011 Steve Ward
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+
+<title>HWF Create</title>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+<script type="application/javascript" src="words.js.php"></script>
+
+<script type="application/javascript" src="utils.js"></script>
+
+<script type="application/javascript">
+
+
+function create(letters)
+{
+	word_matches = []
+
+	var min_length = 4
+
+	var max_length = 8
+
+	// Convert the string to lowercase.
+	letters = letters.toLowerCase()
+
+	// Remove all non-lowercase characters.
+	letters = letters.replace(/[^a-z]/g, "")
+
+	if (letters.length == 0)
+	{
+		return word_matches
+	}
+
+	// Remove duplicate letters and sort the letters.
+	// Include words that are composed of only the letters.
+	var positive_regex = RegExp("^[" + uniq(letters.split("").sort()).join("") + "]{" + min_length + "," + max_length + "}$", "gm")
+
+	negative_regexes = []
+
+	letters_count = counter_create(letters.split(""))
+
+	while (count_properties(letters_count) > 0)
+	{
+		var least_common_letters = get_least_common_keys(letters_count).sort()
+
+		var lowest_count = letters_count[least_common_letters[0]]
+
+		if (lowest_count == 0)
+		{
+			throw new Error("lowest_count must not be 0")
+		}
+
+		// Exclude the least common letters that are repeated more than lowest_count times.
+		var negative_regex = RegExp("([" + least_common_letters.join("") + "])" + Array(lowest_count+1).join(".*?\\1"))
+
+		negative_regexes.push(negative_regex)
+
+		remove_least_common_keys(letters_count)
+	}
+
+	// For each word that matches the positive regex,
+	for each (var word in words.match(positive_regex))
+	{
+		// If the word matches none of the negative regexes,
+		if (matches_none(word, negative_regexes))
+		{
+			word_matches.push(word)
+		}
+	}
+
+	return word_matches
+}
+
+
+function do_form_create()
+{
+	var form = document.forms.form_create
+
+	var letters = form.letters.value
+
+	var word_matches = create(letters)
+
+	form.word_matches.value = ""
+
+	if (word_matches.length == 0)
+	{
+		return
+	}
+
+	//--------------------------------------------------------------------------
+
+	//form.word_matches.cols = get_max_string_length(word_matches) + 1
+
+	//form.word_matches.rows = Math.min(word_matches.length, 20)
+
+	form.word_matches.value = word_matches.join('\n')
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+<h2>HWF Create</h2>
+
+<form id="form_create" action="" onsubmit="javascript:do_form_create(); return false;">
+
+<div>
+
+<input autocomplete="off" maxlength="12" pattern="[A-Za-z]+" placeholder="letters" size="12" type="text" id="letters" title="letters" />
+<!--
+autofocus="autofocus"
+-->
+
+<br />
+
+<!--
+<button type="button" onclick="javascript:do_form_create();">Create</button>
+-->
+
+<button type="submit">Create</button>
+
+<button type="reset">Reset</button>
+
+<br />
+
+<textarea cols="8" placeholder="word matches" readonly="readonly" rows="20" id="word_matches" title="word matches"></textarea>
+
+</div>
+
+</form>
+
+Copyright (C) 2011 Steve Ward
+
+</body>
+
+</html>

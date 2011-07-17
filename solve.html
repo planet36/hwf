@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<!--
+Copyright (C) 2011 Steve Ward
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+
+<title>HWF Solve</title>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+<script type="application/javascript" src="words.js.php"></script>
+
+<script type="application/javascript" src="utils.js"></script>
+
+<script type="application/javascript">
+
+
+function solve(word_pattern, excluded_letters)
+{
+	var last_vowel_given = true
+
+	var word_matches = []
+
+	var letters_count = []
+
+	//--------------------------------------------------------------------------
+	// Validate the word pattern.
+
+	// Convert the string to lowercase.
+	word_pattern = word_pattern.toLowerCase()
+
+	// Remove characters not matching lowercase letters and unknown letters.
+	word_pattern = word_pattern.replace(/[^a-z.?]/g, "")
+
+	if (word_pattern.length == 0)
+	{
+		return [word_matches, letters_count]
+	}
+
+	//--------------------------------------------------------------------------
+	// Validate the excluded letters.
+
+	// Convert the string to lowercase.
+	excluded_letters = excluded_letters.toLowerCase()
+
+	// Remove characters not matching lowercase letters.
+	excluded_letters = excluded_letters.replace(/[^a-z]/g, "")
+
+	// Add letters in the word pattern to the excluded letters.
+	excluded_letters += word_pattern.replace(/[^a-z]/g, "")
+
+	// Remove duplicate letters and sort the letters.
+	excluded_letters = uniq(excluded_letters.split("").sort()).join("")
+
+	// Add all the vowels to the excluded letters pattern.
+	// Remove duplicate letters and sort the letters.
+	var excluded_letters_vowels = uniq((excluded_letters + "aeiou").split("").sort()).join("")
+
+	// In multiline mode, the newline must be included in the negative character class.
+	var excluded_letters_pattern = "[^" + excluded_letters + "\\n]"
+
+	// In multiline mode, the newline must be included in the negative character class.
+	var excluded_letters_vowels_pattern = "[^" + excluded_letters_vowels + "\\n]"
+
+	//------------------------------------------------------------------------------
+
+	var last_vowel_index = -1
+
+	var last_vowel_pattern = /[aeiou][^aeiou]*$/
+
+	// Search for the last vowel in the word pattern.
+	var last_vowel_match = word_pattern.match(last_vowel_pattern)
+
+	// If a vowel was found,
+	if (last_vowel_match != null)
+	{
+		// Store the index of the last vowel.
+		last_vowel_index = last_vowel_match.index
+	}
+
+	var unknown_letter_pattern = /[.?]/g
+
+	var before_vowel = word_pattern.substring(0, last_vowel_index)
+
+	// Replace all unknown letters with the excluded letters pattern.
+	before_vowel = before_vowel.replace(unknown_letter_pattern, excluded_letters_pattern)
+
+	var after_vowel = word_pattern.substring(last_vowel_index)
+
+	// Replace all unknown letters with the excluded letters pattern.
+	after_vowel = after_vowel.replace(unknown_letter_pattern, excluded_letters_vowels_pattern)
+
+	// Enclose the word pattern with anchors.
+	word_pattern = RegExp("^" + before_vowel + after_vowel + "$", "gm")
+
+	letters_count = {}
+
+	// For each word that matches the word pattern,
+	for each (var word in words.match(word_pattern))
+	{
+		add_counters(letters_count, counter_create(uniq(word.split(""))))
+
+		word_matches.push(word)
+	}
+
+	// Remove excluded letters from the letters count.
+	for each (var excluded_letter in excluded_letters)
+	{
+		if (letters_count.hasOwnProperty(excluded_letter))
+		{
+			delete letters_count[excluded_letter]
+		}
+	}
+
+	return [word_matches, letters_count]
+}
+
+
+function do_form_solve()
+{
+	var form = document.forms.form_solve
+
+	var word_pattern = form.word_pattern.value
+
+	var excluded_letters = form.excluded_letters.value
+
+	var result = solve(word_pattern, excluded_letters)
+
+	form.word_matches.value = ""
+
+	form.letters_count.value = ""
+
+	var word_matches = result[0]
+
+	var letters_count = result[1]
+
+	if (word_matches.length == 0)
+	{
+		return
+	}
+
+	//--------------------------------------------------------------------------
+
+	//form.word_matches.cols = get_max_string_length(word_matches) + 1
+
+	//form.word_matches.rows = Math.min(word_matches.length, 20)
+
+	form.word_matches.value = word_matches.join("\n")
+
+	//--------------------------------------------------------------------------
+
+	var width = get_most_common_value(letters_count).toString().length
+
+	letters_count_array = []
+
+	while (count_properties(letters_count) > 0)
+	{
+		var least_common_letters = get_least_common_keys(letters_count).sort()
+
+		var lowest_count = letters_count[least_common_letters[0]]
+
+		if (lowest_count == 0)
+		{
+			throw new Error("lowest_count must not be 0")
+		}
+
+		letters_count_array.push(number_to_string(lowest_count, width) + " = " + least_common_letters.join(" ").toUpperCase())
+
+		remove_least_common_keys(letters_count)
+	}
+
+	//--------------------------------------------------------------------------
+
+	//form.letters_count.cols = Math.max(get_max_string_length(letters_count_array) + 1, 8)
+
+	//form.letters_count.rows = Math.max(Math.min(letters_count_array.length, 20), 2)
+
+	form.letters_count.value = letters_count_array.sort().reverse().join("\n")
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+<h2>HWF Solve</h2>
+
+<form id="form_solve" action="" onsubmit="javascript:do_form_solve(); return false;">
+
+<div>
+
+<input autocomplete="off" maxlength="8" pattern="[A-Za-z.?]+" placeholder="word pattern" size="8" type="text" id="word_pattern" title="word pattern" />
+<!--
+autofocus="autofocus"
+-->
+
+<input autocomplete="off" pattern="[A-Za-z]+" placeholder="excluded letters" size="12" type="text" id="excluded_letters" title="excluded letters" />
+
+<br />
+
+<!--
+<button type="button" onclick="javascript:do_form_solve();">Solve</button>
+-->
+
+<button type="submit">Solve</button>
+
+<button type="reset">Reset</button>
+
+<br />
+
+<textarea cols="8" placeholder="word matches" readonly="readonly" rows="20" id="word_matches" title="word matches"></textarea>
+
+<textarea cols="12" placeholder="letters count" readonly="readonly" rows="20" id="letters_count" title="letters count"></textarea>
+
+</div>
+
+</form>
+
+Copyright (C) 2011 Steve Ward
+
+</body>
+
+</html>
