@@ -33,42 +33,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <script type="application/javascript">
 
 
+var last_vowel_given = true
+
+
 function solve(word_pattern, excluded_letters)
 {
-	var last_vowel_given = true
-
 	var word_matches = []
-
-	var letters_count = []
-
-	//--------------------------------------------------------------------------
-	// Validate the word pattern.
-
-	// Convert the string to lowercase.
-	word_pattern = word_pattern.toLowerCase()
-
-	// Remove characters not matching lowercase letters and unknown letters.
-	word_pattern = word_pattern.replace(/[^a-z.?]/g, "")
 
 	if (word_pattern.length == 0)
 	{
-		return [word_matches, letters_count]
+		return word_matches
 	}
-
-	//--------------------------------------------------------------------------
-	// Validate the excluded letters.
-
-	// Convert the string to lowercase.
-	excluded_letters = excluded_letters.toLowerCase()
-
-	// Remove characters not matching lowercase letters.
-	excluded_letters = excluded_letters.replace(/[^a-z]/g, "")
-
-	// Add letters in the word pattern to the excluded letters.
-	excluded_letters += word_pattern.replace(/[^a-z]/g, "")
-
-	// Remove duplicate letters and sort the letters.
-	excluded_letters = uniq(excluded_letters.split("").sort()).join("")
 
 	// Add all the vowels to the excluded letters pattern.
 	// Remove duplicate letters and sort the letters.
@@ -111,26 +86,13 @@ function solve(word_pattern, excluded_letters)
 	// Enclose the word pattern with anchors.
 	word_pattern = RegExp("^" + before_vowel + after_vowel + "$", "gm")
 
-	letters_count = {}
-
 	// For each word that matches the word pattern,
 	for each (var word in words.match(word_pattern))
 	{
-		add_counters(letters_count, counter_create(uniq(word.split(""))))
-
 		word_matches.push(word)
 	}
 
-	// Remove excluded letters from the letters count.
-	for each (var excluded_letter in excluded_letters)
-	{
-		if (letters_count.hasOwnProperty(excluded_letter))
-		{
-			delete letters_count[excluded_letter]
-		}
-	}
-
-	return [word_matches, letters_count]
+	return word_matches
 }
 
 
@@ -140,17 +102,17 @@ function do_form_solve()
 
 	var word_pattern = form.word_pattern.value
 
+	word_pattern = validate_word_pattern(word_pattern)
+
 	var excluded_letters = form.excluded_letters.value
 
-	var result = solve(word_pattern, excluded_letters)
+	excluded_letters = validate_excluded_letters(excluded_letters, word_pattern)
+
+	var word_matches = solve(word_pattern, excluded_letters)
 
 	form.word_matches.value = ""
 
 	form.letters_count.value = ""
-
-	var word_matches = result[0]
-
-	var letters_count = result[1]
 
 	if (word_matches.length == 0)
 	{
@@ -167,9 +129,30 @@ function do_form_solve()
 
 	//--------------------------------------------------------------------------
 
+	var letters_count = {}
+
+	// For each word in the word matches,
+	for each (var word in word_matches)
+	{
+		var letters = uniq(word.split(""))
+
+		add_counters(letters_count, counter_create(letters))
+	}
+
+	// Remove excluded letters from the letters count.
+	for each (var excluded_letter in excluded_letters)
+	{
+		if (letters_count.hasOwnProperty(excluded_letter))
+		{
+			delete letters_count[excluded_letter]
+		}
+	}
+
+	//--------------------------------------------------------------------------
+
 	var width = get_most_common_value(letters_count).toString().length
 
-	letters_count_array = []
+	var letters_count_array = []
 
 	while (count_properties(letters_count) > 0)
 	{
@@ -203,24 +186,15 @@ function do_form_solve()
 
 <body>
 
-<h2>HWF Solve</h2>
-
 <form id="form_solve" action="" onsubmit="javascript:do_form_solve(); return false;">
 
 <div>
 
 <input autocomplete="off" maxlength="8" pattern="[A-Za-z.?]+" placeholder="word pattern" size="8" type="text" id="word_pattern" title="word pattern" />
-<!--
-autofocus="autofocus"
--->
 
 <input autocomplete="off" pattern="[A-Za-z]+" placeholder="excluded letters" size="12" type="text" id="excluded_letters" title="excluded letters" />
 
 <br />
-
-<!--
-<button type="button" onclick="javascript:do_form_solve();">Solve</button>
--->
 
 <button type="submit">Solve</button>
 

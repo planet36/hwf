@@ -33,19 +33,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <script type="application/javascript">
 
 
+var min_length = 4
+
+var max_length = 8
+
+
 function create(letters)
 {
-	word_matches = []
-
-	var min_length = 4
-
-	var max_length = 8
-
-	// Convert the string to lowercase.
-	letters = letters.toLowerCase()
-
-	// Remove all non-lowercase characters.
-	letters = letters.replace(/[^a-z]/g, "")
+	var word_matches = []
 
 	if (letters.length == 0)
 	{
@@ -56,9 +51,9 @@ function create(letters)
 	// Include words that are composed of only the letters.
 	var positive_regex = RegExp("^[" + uniq(letters.split("").sort()).join("") + "]{" + min_length + "," + max_length + "}$", "gm")
 
-	negative_regexes = []
+	var negative_regexes = []
 
-	letters_count = counter_create(letters.split(""))
+	var letters_count = counter_create(letters.split(""))
 
 	while (count_properties(letters_count) > 0)
 	{
@@ -72,7 +67,7 @@ function create(letters)
 		}
 
 		// Exclude the least common letters that are repeated more than lowest_count times.
-		var negative_regex = RegExp("([" + least_common_letters.join("") + "])" + Array(lowest_count+1).join(".*?\\1"))
+		var negative_regex = RegExp("([" + least_common_letters.join("") + "])" + string_repeat(".*?\\1", lowest_count))
 
 		negative_regexes.push(negative_regex)
 
@@ -99,6 +94,8 @@ function do_form_create()
 
 	var letters = form.letters.value
 
+	letters = validate_letters(letters)
+
 	var word_matches = create(letters)
 
 	form.word_matches.value = ""
@@ -124,22 +121,13 @@ function do_form_create()
 
 <body>
 
-<h2>HWF Create</h2>
-
 <form id="form_create" action="" onsubmit="javascript:do_form_create(); return false;">
 
 <div>
 
 <input autocomplete="off" maxlength="12" pattern="[A-Za-z]+" placeholder="letters" size="12" type="text" id="letters" title="letters" />
-<!--
-autofocus="autofocus"
--->
 
 <br />
-
-<!--
-<button type="button" onclick="javascript:do_form_create();">Create</button>
--->
 
 <button type="submit">Create</button>
 
