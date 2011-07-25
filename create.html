@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html>
 
 <!--
 Copyright (C) 2011 Steve Ward
@@ -16,17 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html lang="en">
 
 <head>
 
-<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+<meta charset="utf-8">
 
 <title>HWF Create</title>
 
 <link rel="stylesheet" type="text/css" href="style.css" />
 
 <script type="application/javascript" src="words.js.php"></script>
+<!--
+<script type="application/javascript" src="words.js"></script>
+-->
 
 <script type="application/javascript" src="utils.js"></script>
 
@@ -74,9 +77,18 @@ function create(letters)
 		remove_least_common_keys(letters_count)
 	}
 
-	// For each word that matches the positive regex,
-	for each (var word in words.match(positive_regex))
+	var all_word_matches = words.match(positive_regex)
+
+	if (all_word_matches == null)
 	{
+		return word_matches
+	}
+
+	// For each word that matches the positive regex,
+	for (var i = 0; i < all_word_matches.length; ++i)
+	{
+		var word = all_word_matches[i]
+
 		// If the word matches none of the negative regexes,
 		if (matches_none(word, negative_regexes))
 		{
@@ -88,30 +100,74 @@ function create(letters)
 }
 
 
-function do_form_create()
+function do_create()
 {
-	var form = document.forms.form_create
+	var element_letters = id("letters")
+	var element_bonus_string = id("bonus_string")
+	var element_show_word_value = id("show_word_value")
+	var element_sort_by_word_value = id("sort_by_word_value")
+	var element_word_matches = id("word_matches")
 
-	var letters = form.letters.value
+	var letters = element_letters.value
 
 	letters = validate_letters(letters)
 
+	var bonus_string = element_bonus_string.value
+
+	bonus_string = validate_bonus_string(bonus_string)
+
+	var bonuses = split_bonus_string(bonus_string)
+
+	var show_word_value = Boolean(element_show_word_value.checked)
+
+	var sort_by_word_value = Boolean(element_sort_by_word_value.checked)
+
 	var word_matches = create(letters)
 
-	form.word_matches.value = ""
+	//--------------------------------------------------------------------------
 
-	if (word_matches.length == 0)
+	if (show_word_value)
 	{
-		return
+		element_word_matches.cols = 12
+	}
+	else
+	{
+		element_word_matches.cols = 8
 	}
 
 	//--------------------------------------------------------------------------
 
-	//form.word_matches.cols = get_max_string_length(word_matches) + 1
+	//##### the width is not dynamic, but that's OK
+	var width = 2
 
-	//form.word_matches.rows = Math.min(word_matches.length, 20)
+	var word_matches_array = []
 
-	form.word_matches.value = word_matches.join('\n')
+	if (show_word_value)
+	{
+		for (var i = 0; i < word_matches.length; ++i)
+		{
+			var word = word_matches[i]
+
+			var word_value = get_word_value(word, bonuses)
+
+			word_matches_array.push(number_to_string(word_value, width) + "\t" + word)
+		}
+
+		//----------------------------------------------------------------------
+
+		if (sort_by_word_value)
+		{
+			word_matches_array = word_matches_array.sort()
+		}
+	}
+	else
+	{
+		word_matches_array = word_matches
+	}
+
+	//--------------------------------------------------------------------------
+
+	element_word_matches.value = word_matches_array.join('\n')
 }
 
 
@@ -121,21 +177,33 @@ function do_form_create()
 
 <body>
 
-<form id="form_create" action="" onsubmit="javascript:do_form_create(); return false;">
+<noscript style="color: red;">
+<p>JavaScript is disabled. You must <a href="http://www.google.com/search?q=enable+JavaScript">enable JavaScript</a> to use this utility.</p>
+</noscript>
+
+<form oninput="do_create()" onsubmit="return false">
 
 <div>
 
 <input autocomplete="off" maxlength="12" pattern="[A-Za-z]+" placeholder="letters" size="12" type="text" id="letters" title="letters" />
 
+<input autocomplete="off" maxlength="16" placeholder="bonus string" size="9" type="text" id="bonus_string" title="bonus string" />
+
 <br />
 
-<button type="submit">Create</button>
+<label id="label_show_word_value"><input checked="checked" type="checkbox" id="show_word_value" title="show word value" onchange="do_create()" onclick="toggle_element_style_display('label_sort_by_word_value')">show word value</label>
+
+<label id="label_sort_by_word_value"><input type="checkbox" id="sort_by_word_value" title="sort by word value" onchange="do_create()">sort by word value</label>
+
+<br />
+
+<button type="button" onclick="do_create()">Create</button>
 
 <button type="reset">Reset</button>
 
 <br />
 
-<textarea cols="8" placeholder="word matches" readonly="readonly" rows="20" id="word_matches" title="word matches"></textarea>
+<textarea cols="12" placeholder="word matches" readonly="readonly" rows="20" id="word_matches" title="word matches"></textarea>
 
 </div>
 
