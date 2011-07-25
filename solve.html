@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html>
 
 <!--
 Copyright (C) 2011 Steve Ward
@@ -16,27 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html lang="en">
 
 <head>
 
-<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+<meta charset="utf-8">
 
 <title>HWF Solve</title>
 
 <link rel="stylesheet" type="text/css" href="style.css" />
 
 <script type="application/javascript" src="words.js.php"></script>
+<!--
+<script type="application/javascript" src="words.js"></script>
+-->
 
 <script type="application/javascript" src="utils.js"></script>
 
 <script type="application/javascript">
 
 
-var last_vowel_given = true
-
-
-function solve(word_pattern, excluded_letters)
+function solve(word_pattern, excluded_letters, last_vowel_given)
 {
 	var word_matches = []
 
@@ -81,14 +81,30 @@ function solve(word_pattern, excluded_letters)
 	var after_vowel = word_pattern.substring(last_vowel_index)
 
 	// Replace all unknown letters with the excluded letters pattern.
-	after_vowel = after_vowel.replace(unknown_letter_pattern, excluded_letters_vowels_pattern)
+	if (last_vowel_given)
+	{
+		after_vowel = after_vowel.replace(unknown_letter_pattern, excluded_letters_vowels_pattern)
+	}
+	else
+	{
+		after_vowel = after_vowel.replace(unknown_letter_pattern, excluded_letters_pattern)
+	}
 
 	// Enclose the word pattern with anchors.
 	word_pattern = RegExp("^" + before_vowel + after_vowel + "$", "gm")
 
-	// For each word that matches the word pattern,
-	for each (var word in words.match(word_pattern))
+	var all_word_matches = words.match(word_pattern)
+
+	if (all_word_matches == null)
 	{
+		return word_matches
+	}
+
+	// For each word that matches the word pattern,
+	for (var i = 0; i < all_word_matches.length; ++i)
+	{
+		var word = all_word_matches[i]
+
 		word_matches.push(word)
 	}
 
@@ -96,52 +112,49 @@ function solve(word_pattern, excluded_letters)
 }
 
 
-function do_form_solve()
+function do_solve()
 {
-	var form = document.forms.form_solve
+	var element_word_pattern = id("word_pattern")
+	var element_excluded_letters = id("excluded_letters")
+	var element_last_vowel_given = id("last_vowel_given")
+	var element_word_matches = id("word_matches")
+	var element_letters_count = id("letters_count")
 
-	var word_pattern = form.word_pattern.value
+	var word_pattern = element_word_pattern.value
 
 	word_pattern = validate_word_pattern(word_pattern)
 
-	var excluded_letters = form.excluded_letters.value
+	var excluded_letters = element_excluded_letters.value
 
 	excluded_letters = validate_excluded_letters(excluded_letters, word_pattern)
 
-	var word_matches = solve(word_pattern, excluded_letters)
+	var last_vowel_given = Boolean(element_last_vowel_given.checked)
 
-	form.word_matches.value = ""
-
-	form.letters_count.value = ""
-
-	if (word_matches.length == 0)
-	{
-		return
-	}
+	var word_matches = solve(word_pattern, excluded_letters, last_vowel_given)
 
 	//--------------------------------------------------------------------------
 
-	//form.word_matches.cols = get_max_string_length(word_matches) + 1
-
-	//form.word_matches.rows = Math.min(word_matches.length, 20)
-
-	form.word_matches.value = word_matches.join("\n")
+	element_word_matches.value = word_matches.join("\n")
 
 	//--------------------------------------------------------------------------
 
 	var letters_count = {}
 
 	// For each word in the word matches,
-	for each (var word in word_matches)
+	for (var i = 0; i < word_matches.length; ++i)
 	{
+		var word = word_matches[i]
+
 		var letters = uniq(word.split(""))
 
 		add_counters(letters_count, counter_create(letters))
 	}
 
 	// Remove excluded letters from the letters count.
-	for each (var excluded_letter in excluded_letters)
+	for (var i = 0; i < excluded_letters.length; ++i)
 	{
+		var excluded_letter = excluded_letters[i]
+
 		if (letters_count.hasOwnProperty(excluded_letter))
 		{
 			delete letters_count[excluded_letter]
@@ -172,11 +185,7 @@ function do_form_solve()
 
 	//--------------------------------------------------------------------------
 
-	//form.letters_count.cols = Math.max(get_max_string_length(letters_count_array) + 1, 8)
-
-	//form.letters_count.rows = Math.max(Math.min(letters_count_array.length, 20), 2)
-
-	form.letters_count.value = letters_count_array.sort().reverse().join("\n")
+	element_letters_count.value = letters_count_array.sort().reverse().join("\n")
 }
 
 
@@ -186,7 +195,11 @@ function do_form_solve()
 
 <body>
 
-<form id="form_solve" action="" onsubmit="javascript:do_form_solve(); return false;">
+<noscript style="color: red;">
+<p>JavaScript is disabled. You must <a href="http://www.google.com/search?q=enable+JavaScript">enable JavaScript</a> to use this utility.</p>
+</noscript>
+
+<form oninput="do_solve()" onsubmit="return false">
 
 <div>
 
@@ -196,7 +209,11 @@ function do_form_solve()
 
 <br />
 
-<button type="submit">Solve</button>
+<label id="label_last_vowel_given"><input checked="checked" type="checkbox" id="last_vowel_given" title="last vowel given" onchange="do_solve()">last vowel given</label>
+
+<br />
+
+<button type="button" onclick="do_solve()">Solve</button>
 
 <button type="reset">Reset</button>
 
