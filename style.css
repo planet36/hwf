@@ -25,6 +25,13 @@ textarea
 {
 	font-size: x-large;
 	vertical-align: top;
+	tab-size: 4;
+	/* Firefox */
+	-moz-tab-size: 4;
+	/* Opera */
+	-o-tab-size: 4;
+	/* Chrome, Safari */
+	-webkit-tab-size: 4;
 }
 
 button
