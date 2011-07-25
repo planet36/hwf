@@ -70,18 +70,20 @@ zynga_letter_values = {
 }
 
 
-#def letters_to_letter_values(letters):
-	#return [zynga_letter_values.get(letter.upper(), 0) for letter in letters]
+# Get the letter values of the letters.
+def letters_to_letter_values(letters):
+
+	return [zynga_letter_values.get(letter.upper(), 0) for letter in letters]
 
 
-##### bonus_string_to_bonuses
-#def split_bonus_string(bonus_string):
+# Split the bonus string into an array of bonuses.
+def split_bonus_string(bonus_string):
 	#"""#####"""
 
-	#return re.sub(r"(DL|TL|DW|TW|.)", r"\1 ", bonus_string).split()
+	return re.sub("(DL|TL|DW|TW|.)", r"\1 ", bonus_string).split()
 
 
-##### maybe this should return a copy instead of modifying the original
+# Apply the bonuses to the letter values.
 def apply_bonuses(letter_values, bonuses):
 
 	bonuses_len = len(bonuses)
@@ -263,9 +265,7 @@ bonus_string = remaining_args[0].strip().upper()
 
 print_verbose("bonus_string={}".format(bonus_string))
 
-#bonuses = split_bonus_string(bonus_string)
-##### Tokenize the string and split it.
-bonuses = re.sub("(DL|TL|DW|TW|.)", r"\1 ", bonus_string).split()
+bonuses = split_bonus_string(bonus_string)
 
 print_verbose("bonuses={}".format(bonuses))
 
@@ -281,9 +281,7 @@ for line in sys.stdin:
 
 		continue
 
-	# Get the letter values of the letters.
-	#letter_values = letters_to_letter_values(line)
-	letter_values = [zynga_letter_values.get(letter.upper(), 0) for letter in line]
+	letter_values = letters_to_letter_values(line)
 
 	#print_verbose("letter_values={}".format(letter_values))
 
