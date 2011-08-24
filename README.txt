@@ -1,6 +1,6 @@
 
 README:
-  These Python scripts assist playing the game Hanging With Friends.
+  These Python and javascript programs assist playing the game Hanging With Friends <http://www.hangingwithfriends.com/>.
   #####
 
 
@@ -10,15 +10,22 @@ AUTHORS:
 
 CONTENTS:
 - COPYING.txt: license
-- create.py: create a word
 - README.txt: this file
+- create.html: create a word
+- create.py: create a word
+- solve.html: solve a word
 - solve.py: solve a word
+- style.css: style sheet
+- utils.js: javascript utilities
 - word-value.py: get the word value
 - words: the list of words
+- words.js.php: create the list of words as a javascript string
+- words.js.py: create the list of words as a javascript string
 
 
 DEPENDENCIES:
 - Python3
+- HTML5 browser with javascript enabled
 
 
 COPYING/LICENSE: |
@@ -45,6 +52,8 @@ EXAMPLES:
     ./create.py riurqjeidwlp
 
     ./create.py riurqjeidwlp | ./word-value.py | sort -g
+
+    ./create.py riurqjeidwlp | ./word-value.py .....dl | sort -g
 
   SOLVE:
 
