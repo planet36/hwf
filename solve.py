@@ -51,7 +51,7 @@ def print_help():
 	"""Print the help message and exit."""
 
 	print("""Usage: {} [OPTIONS] WORD-PATTERN [EXCLUDED-LETTERS]
-This script finds possible words that match WORD-PATTERN for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
+This program finds possible words that match WORD-PATTERN for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 #####
 Find words that match WORD-PATTERN but do not have EXCLUDED-LETTERS.
 #####

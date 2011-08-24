@@ -109,7 +109,7 @@ def print_help():
 	print("""Usage: {} [OPTIONS] LETTERS
 Create a word using LETTERS.
 #####
-This script uses LETTERS to find words that may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
+This program finds words using LETTERS that may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 #####
 Find words composed of a subset of LETTERS.  The words may be used in the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 
@@ -292,7 +292,6 @@ positive_regex = "^[" + "".join(sorted(set(letters))) + "]{" + str(min_length) +
 
 print_verbose("positive_regex={}".format(positive_regex))
 
-##### these are shell commands that could be executed to get the same results as this script.
 # An array of shell commands that could be executed to get the same results as this script.
 commands = []
 
