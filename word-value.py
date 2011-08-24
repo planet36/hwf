@@ -70,21 +70,20 @@ zynga_letter_values = {
 }
 
 
-# Get the letter values of the letters.
 def letters_to_letter_values(letters):
+	"""Get the letter values of the letters."""
 
 	return [zynga_letter_values.get(letter.upper(), 0) for letter in letters]
 
 
-# Split the bonus string into an array of bonuses.
 def split_bonus_string(bonus_string):
-	#"""#####"""
+	"""Split the bonus string into an array of bonuses."""
 
 	return re.sub("(DL|TL|DW|TW|.)", r"\1 ", bonus_string).split()
 
 
-# Apply the bonuses to the letter values.
 def apply_bonuses(letter_values, bonuses):
+	"""Apply the bonuses to the letter values."""
 
 	bonuses_len = len(bonuses)
 
@@ -149,7 +148,7 @@ Example:
 means the first 2 tiles have no bonus and the third tile has a triple letter bonus.
 tiles after the end of the bonus string have no bonus applied to them
 
-#####In BONUS, use any character to denote no bonus.  It should be simple like '.', '?', or '_'.
+#####In BONUS, use any character (except 'd', 't', 'l', and 'w') to denote no bonus.  It should be simple like '.', '?', or '_'.
 
 
 EXAMPLE:
@@ -282,8 +281,6 @@ for line in sys.stdin:
 		continue
 
 	letter_values = letters_to_letter_values(line)
-
-	#print_verbose("letter_values={}".format(letter_values))
 
 	if bonus_string != "":
 
