@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """
 Copyright (C) 2011 Steve Ward
@@ -20,7 +20,5 @@ import json
 
 words_file = './words'
 
-print("words = ", end="")
-print(json.dumps(open(words_file).read()), end="");
-#print("words = " + json.dumps(open(words_file).read()) + ";");
-print(";");
+with open(words_file, 'r') as f:
+	print("words = {};".format(json.dumps(f.read())));
