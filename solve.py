@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """
 Copyright (C) 2011 Steve Ward
@@ -79,10 +79,10 @@ OPTIONS:
 -w, --words=FILE
         Use FILE as the words file.
         (default: {})""".format(
-        	program_name,
-            default_verbose,
-            default_last_vowel_given,
-            default_words_file))
+		program_name,
+		default_verbose,
+		default_last_vowel_given,
+		default_words_file))
 
 	exit(0)
 
@@ -127,7 +127,7 @@ long_options = ["version", "help", "verbose", "last-vowel", "no-last-vowel", "wo
 
 try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
 
-except getopt.GetoptError as err: print_error(err.msg)
+except getopt.GetoptError as err: print_error(err)
 
 for (option, value) in options:
 
