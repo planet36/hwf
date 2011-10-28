@@ -18,26 +18,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import getopt
+import os
 import re
 import signal
 import sys
 
+#-------------------------------------------------------------------------------
 
-program_name = sys.argv[0]
+__version__ = '2011-10-23'
 
-
-# default values
-
-default_verbose = False
-
-
-# mutable values
-
-verbose = default_verbose
-
+program_name = os.path.basename(sys.argv[0])
 
 #-------------------------------------------------------------------------------
 
+# default values
+default_verbose = False
+
+# mutable values
+verbose = default_verbose
+
+#-------------------------------------------------------------------------------
 
 # These are the values of the letters in some Zynga word games.
 zynga_letter_values = {
@@ -72,13 +72,11 @@ zynga_letter_values = {
 
 def letters_to_letter_values(letters):
 	"""Get the letter values of the letters."""
-
 	return [zynga_letter_values.get(letter.upper(), 0) for letter in letters]
 
 
 def split_bonus_string(bonus_string):
 	"""Split the bonus string into an array of bonuses."""
-
 	return re.sub("(DL|TL|DW|TW|.)", r"\1 ", bonus_string).split()
 
 
@@ -92,24 +90,16 @@ def apply_bonuses(letter_values, bonuses):
 	for i in range(len(letter_values)):
 
 		if i == bonuses_len:
-
 			# There are no more bonuses to apply.
 			break
 
 		if bonuses[i] == "DL":
-
 			letter_values[i] *= 2
-
 		elif bonuses[i] == "TL":
-
 			letter_values[i] *= 3
-
 		elif bonuses[i] == "DW":
-
 			word_multiplier *= 2
-
 		elif bonuses[i] == "TW":
-
 			word_multiplier *= 3
 
 	print_verbose("word_multiplier={}".format(word_multiplier))
@@ -121,9 +111,7 @@ def apply_bonuses(letter_values, bonuses):
 
 			letter_values[i] *= word_multiplier
 
-
 #-------------------------------------------------------------------------------
-
 
 def print_help():
 	"""Print the help message and exit."""
@@ -164,17 +152,17 @@ EOT
 
 
 
-OPTIONS:
+OPTIONS
 
 -V, --version
-        Print the version information and exit.
+    Print the version information and exit.
 
 -h, --help
-        Print this message and exit.
+    Print this message and exit.
 
 -v, --verbose
-        Print diagnostics.
-        (default: {})""".format(
+    Print diagnostics.
+    (default: {})""".format(
 		program_name,
 		default_verbose))
 
@@ -183,110 +171,82 @@ OPTIONS:
 
 def print_version():
 	"""Print the version information and exit."""
-
-	print(program_name + " 2011-07-07")
-
+	print("{} {}".format(program_name, __version__))
 	print("Written by Steve Ward")
-
 	exit(0)
 
 
 def print_verbose(s):
 	"""Print the message if verbose mode is on."""
-
 	if verbose: print("# {}".format(s))
 
 
 def print_warning(s):
 	"""Print the warning message and continue."""
-
 	print("Warning: {}".format(s), file=sys.stderr)
 
 
 def print_error(s):
 	"""Print the error message and exit."""
-
 	print("Error: {}".format(s), file=sys.stderr)
-
 	print("Try '{} --help' for more information.".format(program_name))
-
 	exit(1)
-
 
 #-------------------------------------------------------------------------------
 
+short_options = 'Vhv'
+long_options = ['version', 'help', 'verbose']
 
-short_options = "Vhv"
-long_options = ["version", "help", "verbose"]
-
-try: (options, remaining_args) = getopt.getopt(sys.argv[1:], short_options, long_options)
+try: [options, remaining_args] = getopt.getopt(sys.argv[1:], short_options, long_options)
 
 except getopt.GetoptError as err: print_error(err)
 
-for (option, value) in options:
-
-	if   option in ("-V", "--version") : print_version()
-	elif option in ("-h", "--help") : print_help()
-	elif option in ("-v", "--verbose") : verbose = True
+for [option, value] in options:
+	if   option in ['-V', '--version'] : print_version()
+	elif option in ['-h', '--help'] : print_help()
+	elif option in ['-v', '--verbose'] : verbose = True
 	else : print_error("Unhandled option '{}'.".format(option))
-
 
 #-------------------------------------------------------------------------------
 
-
 def signal_handler(signal_num, execution_frame):
-
 	print()
-
 	exit(0)
-
 
 signal.signal(signal.SIGINT, signal_handler) # Interactive attention signal. (Ctrl-C)
 signal.signal(signal.SIGTERM, signal_handler) # Termination request. (kill default signal)
 
-
 #-------------------------------------------------------------------------------
 
-
 print_verbose("remaining_args={}".format(remaining_args))
-
 
 if len(remaining_args) == 0:
 
 	# The default value of the bonus string is an empty string.
-	remaining_args.append("")
-
+	remaining_args.append('')
 
 #-------------------------------------------------------------------------------
 
-
 bonus_string = remaining_args[0].strip().upper()
-
 print_verbose("bonus_string={}".format(bonus_string))
 
 bonuses = split_bonus_string(bonus_string)
-
 print_verbose("bonuses={}".format(bonuses))
-
 
 #-------------------------------------------------------------------------------
 
-
 for line in sys.stdin:
 
-	line = line.strip()
+	line = line.rstrip(os.linesep)
 
 	if len(line) == 0:
-
 		continue
 
 	letter_values = letters_to_letter_values(line)
 
-	if bonus_string != "":
-
+	if bonus_string != '':
 		apply_bonuses(letter_values, bonuses)
 
 	print_verbose("letter_values={}".format(letter_values))
 
 	print("{}\t{}".format(sum(letter_values), line))
-
