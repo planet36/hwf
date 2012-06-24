@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
 import getopt
 import os
 import re
@@ -117,10 +116,9 @@ def print_help():
 	"""Print the help message and exit."""
 
 	print("""Usage: {} [OPTIONS] [BONUS]
+Calculate the values of words for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
 
-This script calculates the values of words for the game Hanging With Friends <http://www.hangingwithfriends.com/>.
-
-##### BONUS is a string
+BONUS is a string where each token corresponds to a bonus to be applied to the letter in the corresponding position in the given word. #####
 
 Use the following convention in the BONUS string.
 "Name" = "Bonus"
