@@ -901,4 +901,36 @@ function validate_excluded_letters(excluded_letters, word_pattern)
 }
 
 
+// Create a Counter object that counts duplicate letters in a word.
+function count_letters_duplicate(word)
+{
+	return counter_create(word.split(""))
+}
+
+
+// Create a Counter object that counts unique letters in a word.
+function count_letters_unique(word)
+{
+	return counter_create(uniq(word.split("")))
+}
+
+
+// Get the count letters function.
+function get_count_letters_function(count_letters_method)
+{
+	if (count_letters_method == "duplicate")
+	{
+		return count_letters_duplicate
+	}
+	else if (count_letters_method == "unique")
+	{
+		return count_letters_unique
+	}
+	else
+	{
+		throw new Error('count_letters_method must be either "duplicate" or "unique"')
+	}
+}
+
+
 //------------------------------------------------------------------------------
