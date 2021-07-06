@@ -7,14 +7,12 @@ import os
 import re
 import sys
 
-#-------------------------------------------------------------------------------
 
 __author__ = 'Steven Ward'
 __version__ = '2012-12-10'
 
 program_name = os.path.basename(sys.argv[0])
 
-#-------------------------------------------------------------------------------
 
 # default values
 default_verbose = False
@@ -30,7 +28,6 @@ max_length = default_max_length
 min_length = default_min_length
 words_file = default_words_file
 
-#-------------------------------------------------------------------------------
 
 def get_least_common_keys(c):
 	"""Get the keys of the least common elements from the Counter object."""
@@ -46,7 +43,6 @@ def remove_least_common_keys(c):
 	for key in get_least_common_keys(c):
 		del c[key]
 
-#-------------------------------------------------------------------------------
 
 def matches_any(string, regexes):
 	"""Determine if the string matches any of the regular expressions."""
@@ -73,7 +69,6 @@ def matches_all(string, regexes):
 
 	return True
 
-#-------------------------------------------------------------------------------
 
 def print_help():
 	"""Print the help message and exit."""
@@ -150,7 +145,6 @@ def print_error(s):
 	print("Try '{} --help' for more information.".format(program_name))
 	exit(1)
 
-#-------------------------------------------------------------------------------
 
 short_options = 'Vhvw:'
 long_options = ['version', 'help', 'verbose', 'show-command', 'hide-command', 'max=', 'min=', 'words=']
@@ -177,14 +171,12 @@ for [option, value] in options:
 	elif option in ['-w', '--words'] : words_file = value
 	else : print_error("Unhandled option '{}'.".format(option))
 
-#-------------------------------------------------------------------------------
 
 print_verbose("remaining_args={}".format(remaining_args))
 
 if len(remaining_args) == 0:
 	print_error("Must give 1 operand.")
 
-#-------------------------------------------------------------------------------
 # Validate the maximum length.
 
 print_verbose("max_length={}".format(max_length))
@@ -192,7 +184,6 @@ print_verbose("max_length={}".format(max_length))
 if max_length < min_length:
 	print_error("Maximum length ({}) must be at least the minimum length ({}).".format(max_length, min_length))
 
-#-------------------------------------------------------------------------------
 # Validate the minimum length.
 
 print_verbose("min_length={}".format(min_length))
@@ -200,7 +191,6 @@ print_verbose("min_length={}".format(min_length))
 if min_length < 1:
 	print_error("Minimum length ({}) must be at least 1.".format(min_length))
 
-#-------------------------------------------------------------------------------
 # Validate the words file.
 
 print_verbose("words_file={}".format(words_file))
@@ -214,13 +204,11 @@ if not os.path.isfile(words_file):
 if not os.access(words_file, os.R_OK):
 	print_error("Words file '{}' is not readable.".format(words_file))
 
-#-------------------------------------------------------------------------------
 # Read the contents of the words file.
 
 with open(words_file) as f:
 	words = f.read()
 
-#-------------------------------------------------------------------------------
 
 letters = remaining_args[0]
 print_verbose("letters={}".format(letters))
@@ -277,7 +265,6 @@ while len(letters_count) > 0:
 if show_command:
 	print(" | ".join(commands))
 
-#-------------------------------------------------------------------------------
 
 # For each word that matches the positive regex,
 for word in re.findall(positive_regex, words, flags=re.MULTILINE):
