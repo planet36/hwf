@@ -11,13 +11,11 @@
 <link rel="stylesheet" type="text/css" href="style.css" />
 
 <!--
-<script type="application/javascript" src="words.js.php"></script>
+<script src="words.js.php"></script>
 -->
-<script type="application/javascript" src="words.javascript"></script>
-
-<script type="application/javascript" src="utils.javascript"></script>
-
-<script type="application/javascript">
+<script src="words.javascript"></script>
+<script src="utils.javascript"></script>
+<script>
 
 
 var min_length = 4
@@ -108,7 +106,6 @@ function do_create()
 
 	var word_matches = create(letters)
 
-	//--------------------------------------------------------------------------
 
 	if (show_word_value)
 	{
@@ -119,7 +116,6 @@ function do_create()
 		element_word_matches.cols = 8
 	}
 
-	//--------------------------------------------------------------------------
 
 	//##### the width is not dynamic, but that's OK
 	var width = 2
@@ -137,7 +133,6 @@ function do_create()
 			word_matches_array.push(number_to_string(word_value, width) + "\t" + word)
 		}
 
-		//----------------------------------------------------------------------
 
 		if (sort_by_word_value)
 		{
@@ -149,7 +144,6 @@ function do_create()
 		word_matches_array = word_matches
 	}
 
-	//--------------------------------------------------------------------------
 
 	element_word_matches.value = word_matches_array.join('\n')
 }
