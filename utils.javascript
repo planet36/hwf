@@ -1,21 +1,6 @@
+// SPDX-FileCopyrightText: Steven Ward
+// SPDX-License-Identifier: OSL-3.0
 
-/*
-Copyright (C) 2011 Steve Ward
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-//------------------------------------------------------------------------------
 
 
 // Get the datum by its id.  This is a utility for "getElementById".
@@ -64,7 +49,6 @@ function name(x)
 }
 
 
-//------------------------------------------------------------------------------
 
 /*
 Source:
@@ -163,7 +147,6 @@ function get_default_display_value(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function get_element_property(element, property)
@@ -198,7 +181,6 @@ function reset_element_property(element, property)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function get_element_disabled(element)
@@ -219,7 +201,6 @@ function reset_element_disabled(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function set_element_disabled_false(element)
@@ -234,7 +215,6 @@ function set_element_disabled_true(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function get_element_style_property(element, property)
@@ -269,7 +249,6 @@ function reset_element_style_property(element, property)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function get_element_style_display(element)
@@ -301,7 +280,6 @@ function reset_element_style_display(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function set_element_style_display_block(element)
@@ -328,7 +306,6 @@ function set_element_style_display_none(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function toggle_element_style_display(element)
@@ -348,7 +325,6 @@ function toggle_element_style_display(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function get_element_style_visibility(element)
@@ -375,7 +351,6 @@ function reset_element_style_visibility(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function set_element_style_visibility_visible(element)
@@ -402,7 +377,6 @@ function set_element_style_visibility_inherit(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function toggle_element_style_visibility(element)
@@ -422,7 +396,6 @@ function toggle_element_style_visibility(element)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Get the unique values in the array.
@@ -467,7 +440,6 @@ function count_properties(object)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Get the least common value in the Counter object.
@@ -520,7 +492,6 @@ function remove_least_common_keys(object)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Get the most common value in the Counter object.
@@ -573,7 +544,6 @@ function remove_most_common_keys(object)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Add the occurrences of the array values to the Counter object.
@@ -612,7 +582,6 @@ function counter_to_array(object)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Determine if the string matches any of the regular expressions.
@@ -656,7 +625,6 @@ function matches_all(string, regexes)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 //##### are these stable?
@@ -673,7 +641,6 @@ function sort_descend(x)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 function number_to_string(number, width)
@@ -732,7 +699,6 @@ function string_repeat(string, num)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // These are the values of the letters in some Zynga word games.
@@ -840,7 +806,6 @@ function get_word_value(word, bonuses)
 }
 
 
-//------------------------------------------------------------------------------
 
 
 // Validate the letters.
@@ -933,4 +898,3 @@ function get_count_letters_function(count_letters_method)
 }
 
 
-//------------------------------------------------------------------------------

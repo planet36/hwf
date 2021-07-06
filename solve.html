@@ -1,21 +1,5 @@
 <!DOCTYPE html>
 
-<!--
-Copyright (C) 2011 Steve Ward
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-
 <html lang="en">
 
 <head>
@@ -55,7 +39,6 @@ function solve(word_pattern, excluded_letters, last_vowel_given)
 	// In multiline mode, the newline must be included in the negative character class.
 	var excluded_letters_vowels_pattern = "[^" + excluded_letters_vowels + "\\n]"
 
-	//------------------------------------------------------------------------------
 
 	var last_vowel_index = -1
 
@@ -132,11 +115,9 @@ function do_solve()
 
 	var word_matches = solve(word_pattern, excluded_letters, last_vowel_given)
 
-	//--------------------------------------------------------------------------
 
 	element_word_matches.value = word_matches.join("\n")
 
-	//--------------------------------------------------------------------------
 
 	var letters_count = {}
 
@@ -161,7 +142,6 @@ function do_solve()
 		}
 	}
 
-	//--------------------------------------------------------------------------
 
 	var width = get_most_common_value(letters_count).toString().length
 
@@ -183,7 +163,6 @@ function do_solve()
 		remove_least_common_keys(letters_count)
 	}
 
-	//--------------------------------------------------------------------------
 
 	element_letters_count.value = letters_count_array.sort().reverse().join("\n")
 }
@@ -226,8 +205,6 @@ function do_solve()
 </div>
 
 </form>
-
-Copyright (C) 2011 Steve Ward
 
 </body>
 

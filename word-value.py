@@ -1,20 +1,5 @@
-#!/usr/bin/env python3
-
-"""
-Copyright (C) 2011 Steve Ward
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+# SPDX-FileCopyrightText: Steven Ward
+# SPDX-License-Identifier: OSL-3.0
 
 import getopt
 import os
@@ -22,13 +7,12 @@ import re
 import signal
 import sys
 
-#-------------------------------------------------------------------------------
 
+__author__ = 'Steven Ward'
 __version__ = '2011-10-23'
 
 program_name = os.path.basename(sys.argv[0])
 
-#-------------------------------------------------------------------------------
 
 # default values
 default_verbose = False
@@ -36,7 +20,6 @@ default_verbose = False
 # mutable values
 verbose = default_verbose
 
-#-------------------------------------------------------------------------------
 
 # These are the values of the letters in some Zynga word games.
 zynga_letter_values = {
@@ -110,7 +93,6 @@ def apply_bonuses(letter_values, bonuses):
 
 			letter_values[i] *= word_multiplier
 
-#-------------------------------------------------------------------------------
 
 def print_help():
 	"""Print the help message and exit."""
@@ -190,7 +172,6 @@ def print_error(s):
 	print("Try '{} --help' for more information.".format(program_name))
 	exit(1)
 
-#-------------------------------------------------------------------------------
 
 short_options = 'Vhv'
 long_options = ['version', 'help', 'verbose']
@@ -205,7 +186,6 @@ for [option, value] in options:
 	elif option in ['-v', '--verbose'] : verbose = True
 	else : print_error("Unhandled option '{}'.".format(option))
 
-#-------------------------------------------------------------------------------
 
 def signal_handler(signal_num, execution_frame):
 	print()
@@ -214,7 +194,6 @@ def signal_handler(signal_num, execution_frame):
 signal.signal(signal.SIGINT, signal_handler) # Interactive attention signal. (Ctrl-C)
 signal.signal(signal.SIGTERM, signal_handler) # Termination request. (kill default signal)
 
-#-------------------------------------------------------------------------------
 
 print_verbose("remaining_args={}".format(remaining_args))
 
@@ -223,7 +202,6 @@ if len(remaining_args) == 0:
 	# The default value of the bonus string is an empty string.
 	remaining_args.append('')
 
-#-------------------------------------------------------------------------------
 
 bonus_string = remaining_args[0].strip().upper()
 print_verbose("bonus_string={}".format(bonus_string))
@@ -231,7 +209,6 @@ print_verbose("bonus_string={}".format(bonus_string))
 bonuses = split_bonus_string(bonus_string)
 print_verbose("bonuses={}".format(bonuses))
 
-#-------------------------------------------------------------------------------
 
 for line in sys.stdin:
 

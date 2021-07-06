@@ -1,20 +1,5 @@
-#!/usr/bin/env python3
-
-"""
-Copyright (C) 2011 Steve Ward
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+# SPDX-FileCopyrightText: Steven Ward
+# SPDX-License-Identifier: OSL-3.0
 
 import collections
 import getopt
@@ -22,13 +7,12 @@ import os
 import re
 import sys
 
-#-------------------------------------------------------------------------------
 
+__author__ = 'Steven Ward'
 __version__ = '2011-10-25'
 
 program_name = os.path.basename(sys.argv[0])
 
-#-------------------------------------------------------------------------------
 
 def count_letters_duplicate(word):
 	"""Count duplicate letters in a word."""
@@ -38,7 +22,6 @@ def count_letters_unique(word):
 	"""Count unique letters in a word."""
 	return collections.Counter(set(word))
 
-#-------------------------------------------------------------------------------
 
 # valid values
 valid_count_letters_method = ['duplicate', 'unique']
@@ -57,7 +40,6 @@ last_vowel_given = default_last_vowel_given
 count_letters_method = default_count_letters_method
 words_file = default_words_file
 
-#-------------------------------------------------------------------------------
 
 def print_help():
 	"""Print the help message and exit."""
@@ -140,7 +122,6 @@ def print_error(s):
 	print("Try '{} --help' for more information.".format(program_name))
 	exit(1)
 
-#-------------------------------------------------------------------------------
 
 short_options = 'Vhvc:w:'
 long_options = ['version', 'help', 'verbose', 'command', 'last-vowel', 'no-last-vowel', 'count=', 'words=']
@@ -161,7 +142,6 @@ for [option, value] in options:
 	elif option in ['-w', '--words'] : words_file = value
 	else : print_error("Unhandled option '{}'.".format(option))
 
-#-------------------------------------------------------------------------------
 
 print_verbose("remaining_args={}".format(remaining_args))
 
@@ -172,7 +152,6 @@ if len(remaining_args) == 1:
 	# The default value of the excluded letters is an empty string.
 	remaining_args.append('')
 
-#-------------------------------------------------------------------------------
 # Validate the count letters method.
 
 print_verbose("count_letters_method={}".format(count_letters_method))
@@ -188,7 +167,6 @@ else:
 	assert count_letters_method == 'unique'
 	count_letters_func = count_letters_unique
 
-#-------------------------------------------------------------------------------
 # Validate the words file.
 
 print_verbose("words_file={}".format(words_file))
@@ -202,13 +180,11 @@ if not os.path.isfile(words_file):
 if not os.access(words_file, os.R_OK):
 	print_error("Words file '{}' is not readable.".format(words_file))
 
-#-------------------------------------------------------------------------------
 # Read the contents of the words file.
 
 with open(words_file) as f:
 	words = f.read()
 
-#-------------------------------------------------------------------------------
 # Validate the word pattern.
 
 word_pattern = remaining_args[0].strip()
@@ -225,7 +201,6 @@ print_verbose("word_pattern={}".format(word_pattern))
 if len(word_pattern) == 0:
 	print_error("Must give non-empty word pattern.")
 
-#-------------------------------------------------------------------------------
 # Validate the excluded letters.
 
 excluded_letters = remaining_args[1].strip()
@@ -260,7 +235,6 @@ print_verbose("excluded_letters_pattern={}".format(excluded_letters_pattern))
 excluded_letters_vowels_pattern = "[^" + excluded_letters_vowels + r"\n]"
 print_verbose("excluded_letters_vowels_pattern={}".format(excluded_letters_vowels_pattern))
 
-#-------------------------------------------------------------------------------
 
 last_vowel_index = -1
 
@@ -295,7 +269,6 @@ word_pattern = re.sub(unknown_letter_pattern, get_excluded_letters_pattern, word
 word_pattern = "^" + word_pattern + "$"
 print_verbose("word_pattern={}".format(word_pattern))
 
-#-------------------------------------------------------------------------------
 
 letters_count = collections.Counter()
 
@@ -305,7 +278,6 @@ for word in re.findall(word_pattern, words, flags=re.MULTILINE):
 
 print_verbose("letters_count={}".format(letters_count))
 
-#-------------------------------------------------------------------------------
 
 # Remove excluded letters from the letters count.
 for excluded_letter in excluded_letters:
@@ -314,7 +286,6 @@ for excluded_letter in excluded_letters:
 
 print_verbose("letters_count={}".format(letters_count))
 
-#-------------------------------------------------------------------------------
 
 if len(letters_count) > 0:
 
