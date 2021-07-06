@@ -16,7 +16,7 @@ CONTENTS:
 - solve.html: solve a word
 - solve.py: solve a word
 - style.css: style sheet
-- utils.js: javascript utilities
+- utils.javascript: javascript utilities
 - word-value.py: get the word value
 - words: the list of words
 - words.js.php: create the list of words as a javascript string
